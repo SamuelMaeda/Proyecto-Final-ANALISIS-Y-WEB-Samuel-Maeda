@@ -11,7 +11,7 @@
     <form id="form1" runat="server">
         <div>
             <h1>
-                Bienvenido al Sistema
+                Bienvenido al Sistema de LuzDelSaber
             </h1>
         </div>
     </form>
