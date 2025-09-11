@@ -67,12 +67,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ForgotPassword.aspx" />
     <Content Include="Index.aspx" />
     <Content Include="Proyecto Final Analisis y Web.aspx" />
     <Content Include="Recursos\CSS\Estilos.css" />
+    <Content Include="ResetPassword.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ForgotPassword.aspx.cs">
+      <DependentUpon>ForgotPassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ForgotPassword.aspx.designer.cs">
+      <DependentUpon>ForgotPassword.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Index.aspx.cs">
       <DependentUpon>Index.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -87,6 +96,13 @@
     </Compile>
     <Compile Include="Proyecto Final Analisis y Web.aspx.designer.cs">
       <DependentUpon>Proyecto Final Analisis y Web.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ResetPassword.aspx.cs">
+      <DependentUpon>ResetPassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ResetPassword.aspx.designer.cs">
+      <DependentUpon>ResetPassword.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

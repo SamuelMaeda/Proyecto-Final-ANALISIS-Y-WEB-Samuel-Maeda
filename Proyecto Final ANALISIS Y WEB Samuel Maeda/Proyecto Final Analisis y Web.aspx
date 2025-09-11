@@ -42,6 +42,10 @@
                         <asp:Button ID="BtnIngresar" CssClass="btn btn-primary btn-dark" runat="server" Text="Ingresar" OnClick="BtnIngresar_Click"/>
                     </div>
 
+                    <div class="row mt-3">
+    <asp:HyperLink ID="lnkForgot" runat="server" NavigateUrl="ForgotPassword.aspx">¿Olvidaste tu contraseña?</asp:HyperLink>
+</div>
+
 
                 </div>
             </form>
