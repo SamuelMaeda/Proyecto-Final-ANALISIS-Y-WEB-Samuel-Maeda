@@ -2,20 +2,20 @@
 
 namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 {
-    public partial class Index : System.Web.UI.Page
+    public partial class SiteMaster : System.Web.UI.MasterPage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // Si no hay sesión, volver al login
-                if (Session["Usuario"] == null)
+                // Si no hay sesión, mandar al login
+                if (Session["Usuario"] != null)
                 {
-                    Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx");
+                    lblUsuario.Text = Session["Usuario"].ToString();
                 }
                 else
                 {
-                    lblUsuario.Text = Session["Usuario"].ToString();
+                    Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // login
                 }
             }
         }
@@ -24,7 +24,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             Session.Clear();
             Session.Abandon();
-            Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // tu login
+            Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // login
         }
     }
 }

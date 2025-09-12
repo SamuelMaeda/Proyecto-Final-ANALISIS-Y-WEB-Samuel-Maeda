@@ -28,8 +28,10 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             SqlDataReader dr = cmd.ExecuteReader();
             if (dr.Read())
             {
-                //Agregamos una sesion de usuario
-                Response.Redirect("Index.aspx"); 
+                // Guardamos el nombre de usuario en la sesión
+                Session["Usuario"] = dr["Usuario"].ToString();
+
+                Response.Redirect("Index.aspx");
             }
             else
             {

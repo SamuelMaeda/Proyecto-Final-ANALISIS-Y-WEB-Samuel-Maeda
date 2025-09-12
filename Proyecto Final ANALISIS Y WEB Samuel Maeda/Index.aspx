@@ -1,19 +1,23 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Index.aspx.cs" Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.Index" %>
+﻿<%@ Page Title="Inicio" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Index.aspx.cs" Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.Index" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
+    <div class="card shadow p-4 text-center">
+        <h1 class="mb-3">
+            Bienvenido, <asp:Label ID="lblUsuario" runat="server" Text=""></asp:Label>
+        </h1>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Inicio</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <div>
-            <h1>
-                Bienvenido al Sistema de LuzDelSaber
-            </h1>
+        <p class="mb-4">Has iniciado sesión correctamente.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <!-- Botón para ir al registro de libros -->
+            <asp:Button ID="btnLibros" runat="server" Text="Ir al Registro de Libros"
+                CssClass="btn btn-primary"
+                PostBackUrl="~/BookRegister.aspx" />
+
+            <!-- Botón para cerrar sesión -->
+            <asp:Button ID="btnLogout" runat="server" Text="Cerrar Sesión"
+                CssClass="btn btn-danger"
+                OnClick="btnLogout_Click" />
         </div>
-    </form>
-</body>
-</html>
+    </div>
+</asp:Content>
