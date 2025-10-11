@@ -1,30 +1,26 @@
 ﻿using System;
+using System.Web.UI;
 
-namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
+namespace LuzDelSaber
 {
-    public partial class Index : System.Web.UI.Page
+    public partial class Index : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            if (Session["Usuario"] != null)
             {
-                // Si no hay sesión, volver al login
-                if (Session["Usuario"] == null)
-                {
-                    Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx");
-                }
-                else
-                {
-                    lblUsuario.Text = Session["Usuario"].ToString();
-                }
+                lblUsuario.Text = Session["Usuario"].ToString();
+            }
+            else
+            {
+                Response.Redirect("Login.aspx");
             }
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             Session.Clear();
-            Session.Abandon();
-            Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // tu login
+            Response.Redirect("Login.aspx");
         }
     }
 }

@@ -1,23 +1,38 @@
-﻿<%@ Page Title="Inicio" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Index.aspx.cs" Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.Index" %>
+﻿<%@ Page Title="Menú Principal" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Index.aspx.cs" Inherits="LuzDelSaber.Index" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <div class="card shadow p-4 text-center">
-        <h1 class="mb-3">
-            Bienvenido, <asp:Label ID="lblUsuario" runat="server" Text=""></asp:Label>
+    <div class="card shadow p-5 text-center">
+        <h1 class="mb-3">Bienvenido, 
+            <asp:Label ID="lblUsuario" runat="server" Text=""></asp:Label>
         </h1>
 
-        <p class="mb-4">Has iniciado sesión correctamente.</p>
+        <p class="mb-4">Selecciona una de las siguientes opciones:</p>
 
-        <div class="d-flex justify-content-center gap-3">
-            <!-- Botón para ir al registro de libros -->
-            <asp:Button ID="btnLibros" runat="server" Text="Ir al Registro de Libros"
-                CssClass="btn btn-primary"
-                PostBackUrl="~/BookRegister.aspx" />
-
-            <!-- Botón para cerrar sesión -->
-            <asp:Button ID="btnLogout" runat="server" Text="Cerrar Sesión"
-                CssClass="btn btn-danger"
-                OnClick="btnLogout_Click" />
+        <div class="row justify-content-center g-3">
+            <div class="col-md-3">
+                <asp:Button ID="btnLibros" runat="server" Text="📚 Registro de Libros"
+                    CssClass="btn btn-primary w-100"
+                    PostBackUrl="~/BookRegister.aspx" />
+            </div>
+            <div class="col-md-3">
+                <asp:Button ID="btnCompras" runat="server" Text="🛒 Registrar Compra"
+                    CssClass="btn btn-info w-100"
+                    PostBackUrl="~/Compra.aspx" />
+            </div>
+            <div class="col-md-3">
+                <asp:Button ID="btnVentas" runat="server" Text="💸 Registrar Venta"
+                    CssClass="btn btn-warning w-100"
+                    PostBackUrl="~/Venta.aspx" />
+            </div>
+            <div class="col-md-3">
+                <asp:Button ID="btnReportes" runat="server" Text="📊 Reportes"
+                    CssClass="btn btn-secondary w-100"
+                    PostBackUrl="~/Reportes.aspx" />
+            </div>
         </div>
+
+        <hr class="my-4" />
+
+        
     </div>
 </asp:Content>

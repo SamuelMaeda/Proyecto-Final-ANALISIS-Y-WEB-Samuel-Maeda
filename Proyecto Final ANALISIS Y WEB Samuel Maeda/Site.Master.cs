@@ -1,30 +1,45 @@
 ﻿using System;
+using System.Web.UI;
 
 namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 {
-    public partial class SiteMaster : System.Web.UI.MasterPage
+    public partial class SiteMaster : MasterPage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            // Verifica sesión activa
+            if (Session["Usuario"] == null)
             {
-                // Si no hay sesión, mandar al login
-                if (Session["Usuario"] != null)
-                {
-                    lblUsuario.Text = Session["Usuario"].ToString();
-                }
-                else
-                {
-                    Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // login
-                }
+                // Guarda mensaje de aviso para mostrar en el login
+                Session["MensajeLogin"] = "Tu sesión ha finalizado o debes iniciar sesión primero.";
+                Response.Redirect("Proyecto Final Analisis y Web.aspx");
             }
+            else
+            {
+                lblUsuario.Text = Session["Usuario"].ToString();
+            }
+
+            // Bloquea el botón "Atrás" del navegador
+            Response.Cache.SetCacheability(System.Web.HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+            Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(-1));
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            // Limpia sesión y borra caché
             Session.Clear();
             Session.Abandon();
-            Response.Redirect("Proyecto_Final_Analisis_y_Web.aspx"); // login
+
+            Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(-1));
+            Response.Cache.SetCacheability(System.Web.HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+
+            // Envía mensaje al login
+            Session["MensajeLogin"] = "Has cerrado sesión correctamente.";
+
+            // Redirige al login
+            Response.Redirect("Proyecto Final Analisis y Web.aspx");
         }
     }
 }

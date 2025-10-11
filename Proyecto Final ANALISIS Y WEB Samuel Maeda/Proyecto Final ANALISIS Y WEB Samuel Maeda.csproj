@@ -68,12 +68,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="BookRegister.aspx" />
+    <Content Include="Compra.aspx" />
     <Content Include="ForgotPassword.aspx" />
     <Content Include="Images\LuzDelSaberLOGO.jpg" />
     <Content Include="Index.aspx" />
     <Content Include="Proyecto Final Analisis y Web.aspx" />
     <Content Include="Recursos\CSS\Estilos.css" />
     <Content Include="ResetPassword.aspx" />
+    <Content Include="Venta.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +85,13 @@
     </Compile>
     <Compile Include="BookRegister.aspx.designer.cs">
       <DependentUpon>BookRegister.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Compra.aspx.cs">
+      <DependentUpon>Compra.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Compra.aspx.designer.cs">
+      <DependentUpon>Compra.aspx</DependentUpon>
     </Compile>
     <Compile Include="ForgotPassword.aspx.cs">
       <DependentUpon>ForgotPassword.aspx</DependentUpon>
@@ -119,6 +128,13 @@
     </Compile>
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Venta.aspx.cs">
+      <DependentUpon>Venta.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Venta.aspx.designer.cs">
+      <DependentUpon>Venta.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
