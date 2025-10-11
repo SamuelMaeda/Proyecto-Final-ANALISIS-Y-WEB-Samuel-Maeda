@@ -69,6 +69,7 @@
   <ItemGroup>
     <Content Include="BookRegister.aspx" />
     <Content Include="ForgotPassword.aspx" />
+    <Content Include="Images\LuzDelSaberLOGO.jpg" />
     <Content Include="Index.aspx" />
     <Content Include="Proyecto Final Analisis y Web.aspx" />
     <Content Include="Recursos\CSS\Estilos.css" />

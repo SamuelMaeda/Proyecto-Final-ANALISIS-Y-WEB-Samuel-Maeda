@@ -14,7 +14,15 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <!-- Logo -->
-                <a class="navbar-brand" href="Index.aspx">📚 LuzDelSaber</a>
+       <!-- sustituye la línea <a class="navbar-brand" href="Index.aspx">📚 LuzDelSaber</a> -->
+<a class="navbar-brand d-flex align-items-center" href="Index.aspx">
+    <asp:Image ID="imgLogoTop" runat="server" ImageUrl="~/Images/LuzDelSaberLOGO.png"
+               AlternateText="LuzDelSaber" Style="height:40px;" CssClass="me-2" />
+    <span class="navbar-text text-white">LuzDelSaber</span>
+</a>
+
+
+
 
                 <div class="collapse navbar-collapse">
                     <!-- Opciones del menú -->

@@ -24,13 +24,13 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.HtmlControls.HtmlForm formulario_login;
 
         /// <summary>
-        /// Control lblBienvenida.
+        /// Control Image1.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBienvenida;
+        protected global::System.Web.UI.WebControls.Image Image1;
 
         /// <summary>
         /// Control lblUsuario.
@@ -69,15 +69,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.TextBox tbPassword;
 
         /// <summary>
-        /// Control lblError.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblError;
-
-        /// <summary>
         /// Control BtnIngresar.
         /// </summary>
         /// <remarks>
@@ -85,6 +76,15 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button BtnIngresar;
+
+        /// <summary>
+        /// Control lblError.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblError;
 
         /// <summary>
         /// Control lnkForgot.

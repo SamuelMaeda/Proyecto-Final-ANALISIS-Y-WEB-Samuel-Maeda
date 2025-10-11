@@ -20,27 +20,34 @@
 
             <form id="formulario_login" runat="server">
                 <div class="form-control">
-                    <div class="col-md-6 text-center mb-5">
-                        <asp:label class="h3" ID="lblBienvenida" runat="server" text="Bienvenido al Sistema de Luz del Saber"></asp:label>
-                    </div>
-                    <div>
-                        <asp:Label ID="lblUsuario" runat="server" Text="Usuario: "></asp:Label>
-                        <asp:TextBox ID="tbUsuario" CssClass="form-control" runat="server" placeholder="Nombre de Usuario"></asp:TextBox>
-                    </div>
-                    <div>
-                        <asp:Label ID="lblPassword" runat="server" Text="Password"></asp:Label>
-                        <asp:TextBox ID="tbPassword" CssClass="form-control" TextMode="Password" runat="server" placeholder="Password"></asp:TextBox>
-                    </div>
-                    <hr />
-                    <div class="row">
-                        <asp:label runat="server" ID="lblError"></asp:label>
-                    </div>
+                    
+    <!-- Logo -->
+    <asp:Image ID="Image1" runat="server" 
+               ImageUrl="~/Images/LuzDelSaberLOGO.jpg"
+               AlternateText="LuzDelSaber" Style="height:80px;" CssClass="mb-3 mx-auto d-block" />
 
-                    <br />
+    <h3 class="mb-4">Bienvenido al sistema de Luz del Saber</h3>
 
-                    <div class="row">
-                        <asp:Button ID="BtnIngresar" CssClass="btn btn-primary btn-dark" runat="server" Text="Ingresar" OnClick="BtnIngresar_Click"/>
-                    </div>
+    <!-- Usuario -->
+    <div class="mb-3 text-start">
+        <asp:Label ID="lblUsuario" runat="server" Text="Usuario:" CssClass="form-label"></asp:Label>
+        <asp:TextBox ID="tbUsuario" runat="server" CssClass="form-control"></asp:TextBox>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="mb-3 text-start">
+        <asp:Label ID="lblPassword" runat="server" Text="Contraseña:" CssClass="form-label"></asp:Label>
+        <asp:TextBox ID="tbPassword" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
+    </div>
+
+    <!-- Botón ingresar -->
+    <asp:Button ID="BtnIngresar" runat="server" Text="Ingresar"
+                CssClass="btn btn-primary w-100" OnClick="BtnIngresar_Click" />
+
+    <!-- Mensaje de error -->
+    <asp:Label ID="lblError" runat="server" CssClass="text-danger d-block mt-3"></asp:Label>
+</div>
+
 
                     <div class="row mt-3">
     <asp:HyperLink ID="lnkForgot" runat="server" NavigateUrl="ForgotPassword.aspx">¿Olvidaste tu contraseña?</asp:HyperLink>

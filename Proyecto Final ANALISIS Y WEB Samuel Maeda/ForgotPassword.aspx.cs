@@ -32,7 +32,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 {
                     Guid token = (Guid)output.Value;
 
-                    // En producción se enviaría un correo. Por ahora lo mostramos en pantalla.
+                    // Mensaje con correo de recuperación. 
                     lblMensaje.Text = "Enlace de recuperación: " +
                         "https://localhost:44381/ResetPassword.aspx?token=" + token;
                 }
