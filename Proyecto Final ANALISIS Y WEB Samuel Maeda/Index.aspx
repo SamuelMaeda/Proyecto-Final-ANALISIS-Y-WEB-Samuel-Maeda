@@ -31,8 +31,14 @@
             </div>
         </div>
 
-        <hr class="my-4" />
+        <div class="row justify-content-center g-3 mt-3">
+            <div class="col-md-3">
+                <asp:Button ID="btnInventario" runat="server" Text="📦 Inventario"
+                    CssClass="btn btn-dark w-100"
+                    PostBackUrl="~/Inventario.aspx" />
+            </div>
+        </div>
 
-        
+        <hr class="my-4" />
     </div>
 </asp:Content>

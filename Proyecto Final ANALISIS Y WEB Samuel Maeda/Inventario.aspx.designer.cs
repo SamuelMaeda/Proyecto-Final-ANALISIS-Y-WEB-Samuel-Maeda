@@ -7,101 +7,101 @@
 // </generado automáticamente>
 //------------------------------------------------------------------------------
 
-namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
+namespace LuzDelSaber
 {
 
 
-    public partial class BookRegister
+    public partial class Inventario
     {
 
         /// <summary>
-        /// Control txtTitulo.
+        /// Control lblBuscar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTitulo;
+        protected global::System.Web.UI.WebControls.Label lblBuscar;
 
         /// <summary>
-        /// Control txtAutor.
+        /// Control txtBuscar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAutor;
+        protected global::System.Web.UI.WebControls.TextBox txtBuscar;
 
         /// <summary>
-        /// Control ddlEditorial.
+        /// Control btnBuscar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlEditorial;
+        protected global::System.Web.UI.WebControls.Button btnBuscar;
 
         /// <summary>
-        /// Control ddlCategoria.
+        /// Control btnReiniciar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlCategoria;
+        protected global::System.Web.UI.WebControls.Button btnReiniciar;
 
         /// <summary>
-        /// Control txtPrecio.
+        /// Control lblOrdenarPor.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPrecio;
+        protected global::System.Web.UI.WebControls.Label lblOrdenarPor;
 
         /// <summary>
-        /// Control txtStock.
+        /// Control ddlOrdenarPor.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStock;
+        protected global::System.Web.UI.WebControls.DropDownList ddlOrdenarPor;
 
         /// <summary>
-        /// Control txtDescripcion.
+        /// Control lblOrden.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDescripcion;
+        protected global::System.Web.UI.WebControls.Label lblOrden;
 
         /// <summary>
-        /// Control btnAgregar.
+        /// Control ddlOrden.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAgregar;
+        protected global::System.Web.UI.WebControls.DropDownList ddlOrden;
 
         /// <summary>
-        /// Control btnLimpiar.
+        /// Control btnOrdenar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLimpiar;
+        protected global::System.Web.UI.WebControls.Button btnOrdenar;
 
         /// <summary>
-        /// Control gvLibros.
+        /// Control gvInventario.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvLibros;
+        protected global::System.Web.UI.WebControls.GridView gvInventario;
     }
 }

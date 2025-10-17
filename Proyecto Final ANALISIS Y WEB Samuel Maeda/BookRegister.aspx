@@ -16,6 +16,13 @@
                 <label class="form-label">Autor:</label>
                 <asp:TextBox ID="txtAutor" runat="server" CssClass="form-control" placeholder="Ingrese el autor"></asp:TextBox>
             </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Editorial:</label>
+                <asp:DropDownList ID="ddlEditorial" runat="server" CssClass="form-select">
+                </asp:DropDownList>
+            </div>
+
 
             <div class="col-md-4">
                 <label class="form-label">Categoría:</label>

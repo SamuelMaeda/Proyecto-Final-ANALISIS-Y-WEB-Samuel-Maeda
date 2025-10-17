@@ -1,14 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
-namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
+namespace LuzDelSaber
 {
-    public partial class Venta : Page
+    [Serializable]
+    public class ItemVenta
     {
-        string conexion = ConfigurationManager.ConnectionStrings["conexion"].ConnectionString;
+        public int LibroId { get; set; }
+        public string Titulo { get; set; }
+        public string Editorial { get; set; }
+        public string Categoria { get; set; }
+        public string UnidadNombre { get; set; }
+        public int UnidadMedidaId { get; set; }
+        public int Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
+        public decimal Subtotal => Cantidad * PrecioUnitario;
+        // Ganancia del 30% (70% es costo, 30% es ganancia)
+        public decimal GananciaUnitaria => PrecioUnitario * 0.30m;
+        public decimal GananciaSubtotal => Cantidad * GananciaUnitaria;
+    }
+
+    public partial class Ventas : Page
+    {
+        private string conexion = ConfigurationManager.ConnectionStrings["conexion"].ConnectionString;
+
+        private List<ItemVenta> ListaVenta
+        {
+            get => ViewState["ListaVenta"] as List<ItemVenta> ?? new List<ItemVenta>();
+            set => ViewState["ListaVenta"] = value;
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -17,6 +42,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 CargarClientes();
                 CargarLibros();
                 CargarUnidades();
+                CargarUltimasVentas();
+                ActualizarTabla();
             }
         }
 
@@ -24,14 +51,13 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT ClienteId, Nombre FROM Clientes", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                ddlCliente.DataSource = dt;
+                SqlCommand cmd = new SqlCommand("SELECT ClienteId, Nombre FROM Clientes", con);
+                con.Open();
+                ddlCliente.DataSource = cmd.ExecuteReader();
                 ddlCliente.DataTextField = "Nombre";
                 ddlCliente.DataValueField = "ClienteId";
                 ddlCliente.DataBind();
-                ddlCliente.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione --", "0"));
+                ddlCliente.Items.Insert(0, new ListItem("-- Seleccione un cliente --", "0"));
             }
         }
 
@@ -39,14 +65,13 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT LibroId, Titulo FROM Libros", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                ddlLibro.DataSource = dt;
+                SqlCommand cmd = new SqlCommand("SELECT LibroId, Titulo FROM Libros ORDER BY Titulo", con);
+                con.Open();
+                ddlLibro.DataSource = cmd.ExecuteReader();
                 ddlLibro.DataTextField = "Titulo";
                 ddlLibro.DataValueField = "LibroId";
                 ddlLibro.DataBind();
-                ddlLibro.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione --", "0"));
+                ddlLibro.Items.Insert(0, new ListItem("-- Seleccione un libro --", "0"));
             }
         }
 
@@ -54,113 +79,261 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT UnidadMedidaId, Nombre FROM UnidadMedida", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                ddlUnidad.DataSource = dt;
+                SqlCommand cmd = new SqlCommand("SELECT UnidadMedidaId, Nombre FROM UnidadMedida", con);
+                con.Open();
+                ddlUnidad.DataSource = cmd.ExecuteReader();
                 ddlUnidad.DataTextField = "Nombre";
                 ddlUnidad.DataValueField = "UnidadMedidaId";
                 ddlUnidad.DataBind();
-                ddlUnidad.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione --", "0"));
+                ddlUnidad.Items.Insert(0, new ListItem("-- Seleccione una unidad --", "0"));
             }
         }
 
         protected void ddlLibro_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ddlLibro.SelectedValue != "0")
-            {
-                using (SqlConnection con = new SqlConnection(conexion))
-                {
-                    SqlCommand cmd = new SqlCommand("SELECT StockUnidades FROM Libros WHERE LibroId = @id", con);
-                    cmd.Parameters.AddWithValue("@id", ddlLibro.SelectedValue);
-                    con.Open();
-                    object result = cmd.ExecuteScalar();
-                    txtStockActual.Text = result != null ? result.ToString() : "0";
-                }
-            }
-            else
-            {
-                txtStockActual.Text = "";
-            }
+            txtCategoria.Text = "";
+            lblStock.Text = "-";
+            if (ddlLibro.SelectedValue == "0") return;
 
-            txtTotal.Text = "";
-        }
-
-        protected void ddlUnidad_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            CalcularTotal();
-        }
-
-        private void CalcularTotal()
-        {
-            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrEmpty(txtCantidad.Text))
-                return;
-
+            int libroId = int.Parse(ddlLibro.SelectedValue);
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlCommand cmd = new SqlCommand(@"
-                    SELECT C.PrecioBase, UM.CantidadPorUnidad, UM.DescuentoPorcentaje
-                    FROM Libros L
-                    JOIN Categorias C ON L.CategoriaId = C.CategoriaId
-                    JOIN UnidadMedida UM ON UM.UnidadMedidaId = @UnidadId
-                    WHERE L.LibroId = @LibroId", con);
-                cmd.Parameters.AddWithValue("@LibroId", ddlLibro.SelectedValue);
-                cmd.Parameters.AddWithValue("@UnidadId", ddlUnidad.SelectedValue);
+                string query = @"SELECT ISNULL(L.StockUnidades,0) AS Stock, C.Nombre AS Categoria
+                                 FROM Libros L
+                                 INNER JOIN Categorias C ON L.CategoriaId = C.CategoriaId
+                                 WHERE L.LibroId = @LibroId";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@LibroId", libroId);
                 con.Open();
 
                 SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
-                    decimal precioBase = Convert.ToDecimal(dr["PrecioBase"]);
-                    int cantidadPorUnidad = Convert.ToInt32(dr["CantidadPorUnidad"]);
-                    decimal descuento = Convert.ToDecimal(dr["DescuentoPorcentaje"]);
-
-                    int cantidad = int.Parse(txtCantidad.Text);
-                    decimal total = cantidad * (precioBase * cantidadPorUnidad) * (1 - descuento / 100);
-
-                    txtTotal.Text = total.ToString("0.00");
+                    lblStock.Text = dr["Stock"].ToString();
+                    txtCategoria.Text = dr["Categoria"].ToString();
                 }
             }
         }
 
-        protected void btnRegistrarVenta_Click(object sender, EventArgs e)
+        protected void btnAgregarLibro_Click(object sender, EventArgs e)
         {
-            if (ddlCliente.SelectedValue == "0" || ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrEmpty(txtCantidad.Text))
+            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text))
                 return;
+
+            int libroId = int.Parse(ddlLibro.SelectedValue);
+            int unidadId = int.Parse(ddlUnidad.SelectedValue);
+            int cantidadIngresada;
+            if (!int.TryParse(txtCantidad.Text.Trim(), out cantidadIngresada) || cantidadIngresada <= 0) return;
+
+            // Verificar stock disponible
+            int stockActual;
+            if (!int.TryParse(lblStock.Text, out stockActual) || cantidadIngresada > stockActual)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "stockError",
+                    "alert('Cantidad solicitada excede el stock disponible.');", true);
+                return;
+            }
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlCommand cmd = new SqlCommand("SP_RegistrarVenta", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@ClienteId", ddlCliente.SelectedValue);
+                string query = @"
+                    SELECT L.Titulo,
+                           ISNULL(E.Nombre,'') AS Editorial,
+                           ISNULL(Cat.Nombre,'') AS Categoria,
+                           ISNULL(L.PrecioOverride, Cat.PrecioBase) AS PrecioVenta,
+                           ISNULL(UM.CantidadPorUnidad, 1) AS CantidadPorUnidad,
+                           ISNULL(UM.Nombre, '') AS UnidadNombre,
+                           UM.UnidadMedidaId
+                    FROM Libros L
+                    INNER JOIN Categorias Cat ON L.CategoriaId = Cat.CategoriaId
+                    LEFT JOIN Editoriales E ON L.EditorialId = E.EditorialId
+                    LEFT JOIN UnidadMedida UM ON UM.UnidadMedidaId = @UnidadId
+                    WHERE L.LibroId = @LibroId";
 
-                DataTable items = new DataTable();
-                items.Columns.Add("LibroId", typeof(int));
-                items.Columns.Add("UnidadMedidaId", typeof(int));
-                items.Columns.Add("Cantidad", typeof(int));
-
-                items.Rows.Add(Convert.ToInt32(ddlLibro.SelectedValue),
-                               Convert.ToInt32(ddlUnidad.SelectedValue),
-                               Convert.ToInt32(txtCantidad.Text));
-
-                cmd.Parameters.AddWithValue("@Items", items);
-
-                SqlParameter totalOut = new SqlParameter("@TotalOut", SqlDbType.Decimal)
-                {
-                    Direction = ParameterDirection.Output,
-                    Precision = 18,
-                    Scale = 2
-                };
-                cmd.Parameters.Add(totalOut);
-
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@LibroId", libroId);
+                cmd.Parameters.AddWithValue("@UnidadId", unidadId);
                 con.Open();
-                cmd.ExecuteNonQuery();
 
-                txtTotal.Text = Convert.ToDecimal(totalOut.Value).ToString("0.00");
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (!dr.Read()) return;
+
+                string titulo = dr["Titulo"].ToString();
+                string editorial = dr["Editorial"].ToString();
+                string categoria = dr["Categoria"].ToString();
+                string unidadNombre = dr["UnidadNombre"].ToString();
+                decimal precioVenta = Convert.ToDecimal(dr["PrecioVenta"]);
+                int cantidadPorUnidad = Convert.ToInt32(dr["CantidadPorUnidad"]);
+                int unidadMedidaId = Convert.ToInt32(dr["UnidadMedidaId"]);
+
+                int cantidadTotal = cantidadIngresada * (cantidadPorUnidad > 0 ? cantidadPorUnidad : 1);
+
+                var lista = ListaVenta;
+                var existente = lista.Find(x => x.Titulo == titulo && x.Editorial == editorial &&
+                                                x.Categoria == categoria && x.UnidadNombre == unidadNombre);
+                if (existente != null)
+                {
+                    existente.Cantidad += cantidadTotal;
+                }
+                else
+                {
+                    lista.Add(new ItemVenta
+                    {
+                        LibroId = libroId,
+                        Titulo = titulo,
+                        Editorial = editorial,
+                        Categoria = categoria,
+                        UnidadNombre = unidadNombre,
+                        UnidadMedidaId = unidadMedidaId,
+                        Cantidad = cantidadTotal,
+                        PrecioUnitario = precioVenta
+                    });
+                }
+
+                ListaVenta = lista;
             }
 
-            // Actualizar stock visualmente
-            ddlLibro_SelectedIndexChanged(null, null);
+            // limpiar inputs
+            txtCantidad.Text = "";
+            ddlUnidad.SelectedIndex = 0;
+            ddlLibro.SelectedIndex = 0;
+            lblStock.Text = "-";
+            txtCategoria.Text = "";
+
+            ActualizarTabla();
+        }
+
+        private void ActualizarTabla()
+        {
+            gvVentaActual.DataSource = ListaVenta;
+            gvVentaActual.DataBind();
+
+            decimal total = 0m;
+            decimal gananciaTotal = 0m;
+            foreach (var it in ListaVenta)
+            {
+                total += it.Subtotal;
+                gananciaTotal += it.GananciaSubtotal;
+            }
+
+            lblTotal.Text = $"Total: Q{total:N2}";
+            lblGananciaTotal.Text = $"Ganancia total: Q{gananciaTotal:N2}";
+
+            bool vacio = ListaVenta == null || ListaVenta.Count == 0;
+            lblMensajeVacio.Visible = vacio;
+            gvVentaActual.Visible = !vacio;
+        }
+
+        protected void btnLimpiarLista_Click(object sender, EventArgs e)
+        {
+            ListaVenta = new List<ItemVenta>();
+            ActualizarTabla();
+        }
+
+        protected void btnLimpiarTodo_Click(object sender, EventArgs e)
+        {
+            ddlCliente.SelectedIndex = 0;
+            ddlLibro.SelectedIndex = 0;
+            ddlUnidad.SelectedIndex = 0;
+            txtCantidad.Text = "";
+            lblStock.Text = "-";
+            txtCategoria.Text = "";
+            ListaVenta = new List<ItemVenta>();
+            ActualizarTabla();
+        }
+
+        protected void btnRegistrarVenta_Click(object sender, EventArgs e)
+        {
+            if (ddlCliente.SelectedValue == "0" || ListaVenta.Count == 0) return;
+
+            decimal total = 0m;
+            decimal gananciaTotal = 0m;
+            foreach (var it in ListaVenta)
+            {
+                total += it.Subtotal;
+                gananciaTotal += it.GananciaSubtotal;
+            }
+
+            using (SqlConnection con = new SqlConnection(conexion))
+            {
+                con.Open();
+
+                // Insertar cabecera de venta
+                SqlCommand cmd = new SqlCommand("INSERT INTO Ventas (ClienteId, Fecha, Total) VALUES (@C, GETDATE(), @T); SELECT SCOPE_IDENTITY();", con);
+                cmd.Parameters.AddWithValue("@C", int.Parse(ddlCliente.SelectedValue));
+                cmd.Parameters.AddWithValue("@T", total);
+                int ventaId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                // Insertar detalles y actualizar stock
+                foreach (var it in ListaVenta)
+                {
+                    // Insertar detalle
+                    SqlCommand det = new SqlCommand(@"INSERT INTO VentaDetalles (VentaId, LibroId, UnidadMedidaId, Cantidad, PrecioUnitario)
+                                                      VALUES (@V, @L, @U, @Cant, @P)", con);
+                    det.Parameters.AddWithValue("@V", ventaId);
+                    det.Parameters.AddWithValue("@L", it.LibroId);
+                    det.Parameters.AddWithValue("@U", it.UnidadMedidaId);
+                    det.Parameters.AddWithValue("@Cant", it.Cantidad);
+                    det.Parameters.AddWithValue("@P", it.PrecioUnitario);
+                    det.ExecuteNonQuery();
+
+                    // Actualizar stock en Libros (reducir)
+                    SqlCommand up = new SqlCommand("UPDATE Libros SET StockUnidades = ISNULL(StockUnidades,0) - @Cant WHERE LibroId = @L", con);
+                    up.Parameters.AddWithValue("@Cant", it.Cantidad);
+                    up.Parameters.AddWithValue("@L", it.LibroId);
+                    up.ExecuteNonQuery();
+                }
+            }
+
+            // Limpiar lista y refrescar
+            ListaVenta = new List<ItemVenta>();
+            ActualizarTabla();
+            CargarUltimasVentas();
+            ScriptManager.RegisterStartupScript(this, GetType(), "ok", "alert('Venta registrada correctamente.');", true);
+        }
+
+        private void CargarUltimasVentas()
+        {
+            using (SqlConnection con = new SqlConnection(conexion))
+            {
+                string query = @"
+                    SELECT TOP 5
+                        CONVERT(varchar(10), V.Fecha, 103) AS Fecha,
+                        CONVERT(varchar(5), V.Fecha, 108) AS Hora,
+                        ISNULL(C.Nombre, 'Cliente General') AS Cliente,
+                        STUFF((
+                            SELECT ', ' + CAST(vd.Cantidad AS varchar(20)) + ' unidades de ' + ISNULL(L2.Titulo, '')
+                            FROM VentaDetalles vd
+                            LEFT JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                            WHERE vd.VentaId = V.VentaId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Productos,
+                        STUFF((
+                            SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
+                            FROM VentaDetalles vd
+                            INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                            INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
+                            WHERE vd.VentaId = V.VentaId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
+                        STUFF((
+                            SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
+                            FROM VentaDetalles vd
+                            INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                            LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
+                            WHERE vd.VentaId = V.VentaId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
+                        V.Total,
+                        -- Calcular ganancia como 30% del total (NO usa PrecioCosto)
+                        (V.Total * 0.30) AS Ganancia
+                    FROM Ventas V
+                    LEFT JOIN Clientes C ON V.ClienteId = C.ClienteId
+                    ORDER BY V.Fecha DESC;";
+
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvUltimasVentas.DataSource = dt;
+                gvUltimasVentas.DataBind();
+            }
         }
     }
 }

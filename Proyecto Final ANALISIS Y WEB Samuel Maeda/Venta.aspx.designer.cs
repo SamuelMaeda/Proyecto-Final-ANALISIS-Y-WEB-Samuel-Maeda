@@ -7,11 +7,11 @@
 // </generado automáticamente>
 //------------------------------------------------------------------------------
 
-namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
+namespace LuzDelSaber
 {
 
 
-    public partial class Venta
+    public partial class Ventas
     {
 
         /// <summary>
@@ -33,6 +33,15 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.DropDownList ddlLibro;
 
         /// <summary>
+        /// Control txtCategoria.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtCategoria;
+
+        /// <summary>
         /// Control ddlUnidad.
         /// </summary>
         /// <remarks>
@@ -51,22 +60,22 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.TextBox txtCantidad;
 
         /// <summary>
-        /// Control txtStockActual.
+        /// Control lblStock.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStockActual;
+        protected global::System.Web.UI.WebControls.Label lblStock;
 
         /// <summary>
-        /// Control txtTotal.
+        /// Control btnAgregarLibro.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotal;
+        protected global::System.Web.UI.WebControls.Button btnAgregarLibro;
 
         /// <summary>
         /// Control btnRegistrarVenta.
@@ -76,5 +85,68 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnRegistrarVenta;
+
+        /// <summary>
+        /// Control btnLimpiarTodo.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnLimpiarTodo;
+
+        /// <summary>
+        /// Control gvVentaActual.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvVentaActual;
+
+        /// <summary>
+        /// Control lblMensajeVacio.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMensajeVacio;
+
+        /// <summary>
+        /// Control btnLimpiarLista.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnLimpiarLista;
+
+        /// <summary>
+        /// Control lblTotal.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTotal;
+
+        /// <summary>
+        /// Control lblGananciaTotal.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGananciaTotal;
+
+        /// <summary>
+        /// Control gvUltimasVentas.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvUltimasVentas;
     }
 }
