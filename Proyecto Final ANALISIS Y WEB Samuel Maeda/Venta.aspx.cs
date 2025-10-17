@@ -260,19 +260,20 @@ namespace LuzDelSaber
 
                 foreach (var it in ListaVenta)
                 {
-                    SqlCommand det = new SqlCommand(@"INSERT INTO VentaDetalles (VentaId, LibroId, UnidadMedidaId, Cantidad, PrecioUnitario)
-                                                      VALUES (@V, @L, @U, @Cant, @P)", con);
+                    SqlCommand det = new SqlCommand(@"
+                    INSERT INTO VentaDetalles 
+                    (VentaId, LibroId, UnidadMedidaId, Cantidad, PrecioUnitario, DescuentoAplicado)
+                    VALUES 
+                    (@V, @L, @U, @Cant, @P, @D)", con);
+
                     det.Parameters.AddWithValue("@V", ventaId);
                     det.Parameters.AddWithValue("@L", it.LibroId);
                     det.Parameters.AddWithValue("@U", it.UnidadMedidaId);
                     det.Parameters.AddWithValue("@Cant", it.Cantidad);
                     det.Parameters.AddWithValue("@P", it.PrecioUnitario);
+                    det.Parameters.AddWithValue("@D", 0); // sin descuento por defecto
                     det.ExecuteNonQuery();
 
-                    SqlCommand up = new SqlCommand("UPDATE Libros SET StockUnidades = ISNULL(StockUnidades,0) - @Cant WHERE LibroId = @L", con);
-                    up.Parameters.AddWithValue("@Cant", it.Cantidad);
-                    up.Parameters.AddWithValue("@L", it.LibroId);
-                    up.ExecuteNonQuery();
                 }
             }
 
