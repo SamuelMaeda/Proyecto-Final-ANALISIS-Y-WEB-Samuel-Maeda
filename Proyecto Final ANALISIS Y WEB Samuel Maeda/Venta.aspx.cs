@@ -17,10 +17,13 @@ namespace LuzDelSaber
         public string Categoria { get; set; }
         public string UnidadNombre { get; set; }
         public int UnidadMedidaId { get; set; }
-        public int Cantidad { get; set; }                 // cantidad en unidades base (ej. libros)
-        public decimal PrecioUnitario { get; set; }      // precio por unidad base (ej. por libro)
-        public decimal PrecioCosto { get; set; }         // costo por unidad base
+        public int Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
+        public decimal PrecioCosto { get; set; }
+        public decimal DescuentoAplicado { get; set; }
+
         public decimal Subtotal => Cantidad * PrecioUnitario;
+        public decimal SubtotalConDescuento => Subtotal - DescuentoAplicado;
         public decimal GananciaUnitaria => PrecioUnitario - PrecioCosto;
         public decimal GananciaSubtotal => Cantidad * GananciaUnitaria;
     }
@@ -28,15 +31,7 @@ namespace LuzDelSaber
     public partial class Ventas : Page
     {
         private string conexion = ConfigurationManager.ConnectionStrings["conexion"].ConnectionString;
-
-        // ─────────────────────────────────────────────────────────
-        // BANDERA: Ajusta esto según cómo guardes PrecioVenta en BD:
-        // true  => PrecioVenta está guardado POR UNIDAD BASE (ej. precio por libro)  <- valor por defecto recomendado
-        // false => PrecioVenta está guardado POR UNIDAD DE MEDIDA (ej. precio por caja/paquete)
-        // Si no estás seguro, ejecuta los SQL de diagnóstico que te doy abajo.
-        // ─────────────────────────────────────────────────────────
         private bool PrecioVentaEsPorUnidadBase = true;
-        // ─────────────────────────────────────────────────────────
 
         private List<ItemVenta> ListaVenta
         {
@@ -126,7 +121,6 @@ namespace LuzDelSaber
 
         protected void btnAgregarLibro_Click(object sender, EventArgs e)
         {
-            // Validaciones simples
             if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text))
                 return;
 
@@ -134,7 +128,6 @@ namespace LuzDelSaber
             int unidadId = int.Parse(ddlUnidad.SelectedValue);
             if (!int.TryParse(txtCantidad.Text.Trim(), out int cantidadIngresada) || cantidadIngresada <= 0) return;
 
-            // verificar stock (el stock está en unidades base)
             if (!int.TryParse(lblStock.Text, out int stockActual) || cantidadIngresada > stockActual)
             {
                 ScriptManager.RegisterStartupScript(this, GetType(), "stockError",
@@ -171,39 +164,29 @@ namespace LuzDelSaber
                 string editorial = dr["Editorial"].ToString();
                 string categoria = dr["Categoria"].ToString();
                 string unidadNombre = dr["UnidadNombre"].ToString();
-                decimal precioVenta = Convert.ToDecimal(dr["PrecioVenta"]); // valor desde BD (puede ser por unidad base o por paquete)
-                decimal precioBase = Convert.ToDecimal(dr["PrecioBase"]);   // costo por unidad base
-                int cantidadPorUnidad = Convert.ToInt32(dr["CantidadPorUnidad"]); // ej. 1 (unidad) o 10 (unidades por caja)
+                decimal precioVenta = Convert.ToDecimal(dr["PrecioVenta"]);
+                decimal precioBase = Convert.ToDecimal(dr["PrecioBase"]);
+                int cantidadPorUnidad = Convert.ToInt32(dr["CantidadPorUnidad"]);
                 int unidadMedidaId = Convert.ToInt32(dr["UnidadMedidaId"]);
 
-                // --------- Lógica correcta de cantidades y precio por unidad base ----------
-                // cantidadTotal = cantidad ingresada * cantidadPorUnidad  (en unidades base)
                 int cantidadTotal = cantidadIngresada * (cantidadPorUnidad > 0 ? cantidadPorUnidad : 1);
+                decimal precioUnitario = PrecioVentaEsPorUnidadBase
+                    ? precioVenta
+                    : (cantidadPorUnidad > 0 ? precioVenta / cantidadPorUnidad : precioVenta);
 
-                // Determinar PrecioUnitario en UNIDAD BASE (el precio que multiplicaremos por cantidadTotal)
-                decimal precioUnitarioEnUnidadBase;
+                // Descuento por unidad
+                decimal descuento = 0m;
+                if (unidadNombre.ToLower().Contains("caja grande"))
+                    descuento = (cantidadTotal * precioUnitario) * 0.25m;
+                else if (unidadNombre.ToLower().Contains("caja"))
+                    descuento = (cantidadTotal * precioUnitario) * 0.10m;
 
-                if (PrecioVentaEsPorUnidadBase)
-                {
-                    // precioVenta ya es precio por unidad base (ej. Q70 por libro)
-                    precioUnitarioEnUnidadBase = precioVenta;
-                }
-                else
-                {
-                    // precioVenta está guardado por "unidad de medida" (ej. precio por caja), entonces
-                    // convertimos a precio por unidad base dividiendo por cantidadPorUnidad
-                    // (ej. Q630 por caja / 10 unidadesPorCaja => Q63 por libro)
-                    precioUnitarioEnUnidadBase = cantidadPorUnidad > 0 ? precioVenta / cantidadPorUnidad : precioVenta;
-                }
-                // -------------------------------------------------------------------------
-
-                // Agregar a la lista (las cantidades en lista se guardan como UNIDADES BASE)
                 var lista = ListaVenta;
-                var existente = lista.Find(x => x.Titulo == titulo && x.Editorial == editorial &&
-                                                x.Categoria == categoria && x.UnidadNombre == unidadNombre);
+                var existente = lista.Find(x => x.Titulo == titulo && x.UnidadNombre == unidadNombre);
                 if (existente != null)
                 {
                     existente.Cantidad += cantidadTotal;
+                    existente.DescuentoAplicado += descuento;
                 }
                 else
                 {
@@ -216,19 +199,14 @@ namespace LuzDelSaber
                         UnidadNombre = unidadNombre,
                         UnidadMedidaId = unidadMedidaId,
                         Cantidad = cantidadTotal,
-                        PrecioUnitario = precioUnitarioEnUnidadBase,
-                        PrecioCosto = precioBase
+                        PrecioUnitario = precioUnitario,
+                        PrecioCosto = precioBase,
+                        DescuentoAplicado = descuento
                     });
                 }
-
                 ListaVenta = lista;
-
-                // Opcional: debug rápido (comentarlo o eliminar en producción)
-                // necesitas un Label en la .aspx llamado lblDebug (opcional) para ver esto
-                // lblDebug.Text = $"DBG: libro={titulo} precioVentaBD={precioVenta} cantPorUnidad={cantidadPorUnidad} precioUnitBase={precioUnitarioEnUnidadBase} cantidadTotal={cantidadTotal}";
             }
 
-            // limpiar inputs
             txtCantidad.Text = "";
             ddlUnidad.SelectedIndex = 0;
             ddlLibro.SelectedIndex = 0;
@@ -243,38 +221,56 @@ namespace LuzDelSaber
             gvVentaActual.DataSource = ListaVenta;
             gvVentaActual.DataBind();
 
-            decimal subtotal = 0m;
-            decimal gananciaTotal = 0m;
+            if (ListaVenta.Count == 0)
+            {
+                lblMensajeVacio.Visible = true;
+                gvVentaActual.Visible = false;
+                lblTotal.Text = "Subtotal sin descuento: Q0.00";
+                lblDescuento.Text = "Descuento total aplicado: Q0.00";
+                lblSubtotalConDesc.Text = "Subtotal con descuento: Q0.00";
+                lblIVA.Text = "IVA (12%): Q0.00";
+                lblTotalFinal.Text = "TOTAL FINAL (con IVA): Q0.00";
+                lblGananciaTotal.Text = "Ganancia total: Q0.00";
+                return;
+            }
 
+            lblMensajeVacio.Visible = false;
+            gvVentaActual.Visible = true;
+
+            decimal subtotal = 0m, descuentoTotal = 0m, gananciaTotal = 0m;
             foreach (var it in ListaVenta)
             {
                 subtotal += it.Subtotal;
+                descuentoTotal += it.DescuentoAplicado;
                 gananciaTotal += it.GananciaSubtotal;
             }
 
-            decimal iva = subtotal * 0.12m;
-            decimal totalConIva = subtotal + iva;
+            decimal subtotalConDesc = subtotal - descuentoTotal;
+            decimal iva = subtotalConDesc * 0.12m;
+            decimal totalFinal = subtotalConDesc + iva;
 
-            lblTotal.Text = $"Subtotal: Q{subtotal:N2}";
-            lblGananciaTotal.Text = $"Ganancia total: Q{gananciaTotal:N2}";
+            lblTotal.Text = $"Subtotal sin descuento: Q{subtotal:N2}";
+            lblDescuento.Text = $"Descuento total aplicado: Q{descuentoTotal:N2}";
+            lblSubtotalConDesc.Text = $"Subtotal con descuento: Q{subtotalConDesc:N2}";
             lblIVA.Text = $"IVA (12%): Q{iva:N2}";
-            lblTotalFinal.Text = $"Total con IVA: Q{totalConIva:N2}";
-
-            bool vacio = ListaVenta == null || ListaVenta.Count == 0;
-            lblMensajeVacio.Visible = vacio;
-            gvVentaActual.Visible = !vacio;
+            lblTotalFinal.Text = $"TOTAL FINAL (con IVA): Q{totalFinal:N2}";
+            lblGananciaTotal.Text = $"Ganancia total: Q{gananciaTotal:N2}";
         }
 
         protected void btnRegistrarVenta_Click(object sender, EventArgs e)
         {
             if (ddlCliente.SelectedValue == "0" || ListaVenta.Count == 0) return;
 
-            decimal subtotal = 0m;
+            decimal subtotal = 0m, descuentoTotal = 0m;
             foreach (var it in ListaVenta)
+            {
                 subtotal += it.Subtotal;
+                descuentoTotal += it.DescuentoAplicado;
+            }
 
-            decimal iva = subtotal * 0.12m;
-            decimal totalConIva = subtotal + iva;
+            decimal subtotalConDesc = subtotal - descuentoTotal;
+            decimal iva = subtotalConDesc * 0.12m;
+            decimal totalFinal = subtotalConDesc + iva;
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
@@ -282,7 +278,7 @@ namespace LuzDelSaber
 
                 SqlCommand cmd = new SqlCommand("INSERT INTO Ventas (ClienteId, Fecha, Total, IVA) VALUES (@C, GETDATE(), @T, @IVA); SELECT SCOPE_IDENTITY();", con);
                 cmd.Parameters.AddWithValue("@C", int.Parse(ddlCliente.SelectedValue));
-                cmd.Parameters.AddWithValue("@T", totalConIva);
+                cmd.Parameters.AddWithValue("@T", totalFinal);
                 cmd.Parameters.AddWithValue("@IVA", iva);
                 int ventaId = Convert.ToInt32(cmd.ExecuteScalar());
 
@@ -290,26 +286,26 @@ namespace LuzDelSaber
                 {
                     SqlCommand det = new SqlCommand(@"
                         INSERT INTO VentaDetalles (VentaId, LibroId, UnidadMedidaId, Cantidad, PrecioUnitario, DescuentoAplicado)
-                        VALUES (@V, @L, @U, @Cant, @P, @D)", con);
+                        VALUES (@V, @L, @U, @C, @P, @D)", con);
                     det.Parameters.AddWithValue("@V", ventaId);
                     det.Parameters.AddWithValue("@L", it.LibroId);
                     det.Parameters.AddWithValue("@U", it.UnidadMedidaId);
-                    det.Parameters.AddWithValue("@Cant", it.Cantidad);
+                    det.Parameters.AddWithValue("@C", it.Cantidad);
                     det.Parameters.AddWithValue("@P", it.PrecioUnitario);
-                    det.Parameters.AddWithValue("@D", 0);
+                    det.Parameters.AddWithValue("@D", it.DescuentoAplicado);
                     det.ExecuteNonQuery();
 
-                    SqlCommand up = new SqlCommand("UPDATE Libros SET StockUnidades = ISNULL(StockUnidades,0) - @Cant WHERE LibroId = @L", con);
-                    up.Parameters.AddWithValue("@Cant", it.Cantidad);
-                    up.Parameters.AddWithValue("@L", it.LibroId);
-                    up.ExecuteNonQuery();
+                    SqlCommand upd = new SqlCommand("UPDATE Libros SET StockUnidades = ISNULL(StockUnidades,0) - @Cant WHERE LibroId=@L", con);
+                    upd.Parameters.AddWithValue("@Cant", it.Cantidad);
+                    upd.Parameters.AddWithValue("@L", it.LibroId);
+                    upd.ExecuteNonQuery();
                 }
             }
 
             ListaVenta = new List<ItemVenta>();
             ActualizarTabla();
             CargarUltimasVentas();
-            ScriptManager.RegisterStartupScript(this, GetType(), "ok", "alert('Venta registrada con IVA correctamente.');", true);
+            ScriptManager.RegisterStartupScript(this, GetType(), "ok", "alert('Venta registrada correctamente con descuentos e IVA.');", true);
         }
 
         private void CargarUltimasVentas()
@@ -317,40 +313,63 @@ namespace LuzDelSaber
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 string query = @"
-                    SELECT TOP 5
-                        CONVERT(varchar(10), V.Fecha, 103) + ' ' + CONVERT(varchar(5), V.Fecha, 108) AS FechaHora,
-                        ISNULL(C.Nombre, 'Cliente General') AS Cliente,
-                        STUFF((
-                            SELECT ', ' + CAST(vd.Cantidad AS varchar(10)) + ' unidades de ' + ISNULL(L2.Titulo, '')
-                            FROM VentaDetalles vd
-                            LEFT JOIN Libros L2 ON vd.LibroId = L2.LibroId
-                            WHERE vd.VentaId = V.VentaId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS LibrosVendidos,
-                        STUFF((
-                            SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
-                            FROM VentaDetalles vd
-                            INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
-                            INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
-                            WHERE vd.VentaId = V.VentaId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
-                        STUFF((
-                            SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
-                            FROM VentaDetalles vd
-                            INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
-                            LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
-                            WHERE vd.VentaId = V.VentaId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
-                        CASE 
-                            WHEN SUM(ISNULL(vd.DescuentoAplicado,0)) > 0 
-                            THEN CONCAT('Q', FORMAT(SUM(vd.DescuentoAplicado), 'N2')) 
-                            ELSE 'Sin descuento'
-                        END AS DescuentoAplicado,
-                        V.Total AS TotalConIVA
-                    FROM Ventas V
-                    LEFT JOIN Clientes C ON V.ClienteId = C.ClienteId
-                    LEFT JOIN VentaDetalles vd ON vd.VentaId = V.VentaId
-                    GROUP BY V.VentaId, V.Fecha, C.Nombre, V.Total
-                    ORDER BY V.Fecha DESC;";
+            SELECT TOP 5
+                CONVERT(varchar(10), V.Fecha, 103) + ' ' + CONVERT(varchar(5), V.Fecha, 108) AS FechaHora,
+                ISNULL(C.Nombre, 'Cliente General') AS Cliente,
+                STUFF((
+                    SELECT ', ' +
+                           CAST(
+                               CASE 
+                                   WHEN UM.CantidadPorUnidad > 0 
+                                   THEN (vd.Cantidad / UM.CantidadPorUnidad) 
+                                   ELSE vd.Cantidad 
+                               END AS varchar(10)
+                           ) + ' ' + LOWER(
+                               CASE 
+                                   WHEN UM.Nombre LIKE '%(%)%' 
+                                       THEN LEFT(UM.Nombre, CHARINDEX('(', UM.Nombre) - 1) 
+                                   ELSE UM.Nombre 
+                               END
+                           ) +
+                           CASE 
+                               WHEN UM.CantidadPorUnidad > 1 AND UM.Nombre NOT LIKE '%(%)%' 
+                                   THEN ' (' + CAST(UM.CantidadPorUnidad AS varchar(10)) + ')' 
+                               ELSE '' 
+                           END +
+                           ' de ' + ISNULL(L2.Titulo, '')
+                    FROM VentaDetalles vd
+                    LEFT JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                    LEFT JOIN UnidadMedida UM ON vd.UnidadMedidaId = UM.UnidadMedidaId
+                    WHERE vd.VentaId = V.VentaId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, ''
+                ) AS LibrosVendidos,
+                STUFF((
+                    SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
+                    FROM VentaDetalles vd
+                    INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                    INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
+                    WHERE vd.VentaId = V.VentaId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, ''
+                ) AS Categorias,
+                STUFF((
+                    SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
+                    FROM VentaDetalles vd
+                    INNER JOIN Libros L2 ON vd.LibroId = L2.LibroId
+                    LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
+                    WHERE vd.VentaId = V.VentaId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, ''
+                ) AS Editoriales,
+                CASE 
+                    WHEN SUM(ISNULL(vd.DescuentoAplicado,0)) > 0 
+                    THEN CONCAT('Q', FORMAT(SUM(vd.DescuentoAplicado), 'N2')) 
+                    ELSE 'Sin descuento'
+                END AS DescuentoAplicado,
+                V.Total AS TotalConIVA
+            FROM Ventas V
+            LEFT JOIN Clientes C ON V.ClienteId = C.ClienteId
+            LEFT JOIN VentaDetalles vd ON vd.VentaId = V.VentaId
+            GROUP BY V.VentaId, V.Fecha, C.Nombre, V.Total
+            ORDER BY V.Fecha DESC;";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
@@ -360,14 +379,13 @@ namespace LuzDelSaber
             }
         }
 
-        // limpiar la lista actual
+
         protected void btnLimpiarLista_Click(object sender, EventArgs e)
         {
             ListaVenta = new List<ItemVenta>();
             ActualizarTabla();
         }
 
-        // limpiar todo el formulario
         protected void btnLimpiarTodo_Click(object sender, EventArgs e)
         {
             ddlCliente.SelectedIndex = 0;

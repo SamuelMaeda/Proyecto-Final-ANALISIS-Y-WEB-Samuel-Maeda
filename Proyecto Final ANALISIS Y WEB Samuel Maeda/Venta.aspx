@@ -1,5 +1,5 @@
 ﻿<%@ Page Title="Registrar Venta" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
-    CodeBehind="Ventas.aspx.cs" Inherits="LuzDelSaber.Ventas" %>
+    CodeBehind="Venta.aspx.cs" Inherits="LuzDelSaber.Ventas" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -10,9 +10,7 @@
             <!-- Cliente -->
             <div class="col-md-4">
                 <label class="form-label">Cliente:</label>
-                <asp:DropDownList ID="ddlCliente" runat="server" CssClass="form-select">
-                    <asp:ListItem Text="-- Seleccione un cliente --" Value="0"></asp:ListItem>
-                </asp:DropDownList>
+                <asp:DropDownList ID="ddlCliente" runat="server" CssClass="form-select"></asp:DropDownList>
             </div>
 
             <!-- Libro -->
@@ -63,22 +61,30 @@
         <!-- Lista de libros -->
         <h4 class="text-center mb-3 fw-bold" style="font-size: 1.4rem;">📚 Libros en la venta actual</h4>
 
-        <asp:GridView ID="gvVentaActual" runat="server" CssClass="table table-bordered table-hover text-center"
+        <asp:GridView ID="gvVentaActual" runat="server"
+            CssClass="table table-bordered table-hover text-center"
             AutoGenerateColumns="False" ShowHeaderWhenEmpty="true">
             <Columns>
                 <asp:BoundField DataField="Titulo" HeaderText="Título" />
                 <asp:BoundField DataField="Editorial" HeaderText="Editorial" />
                 <asp:BoundField DataField="Categoria" HeaderText="Categoría" />
-                <asp:BoundField DataField="UnidadNombre" HeaderText="Unidad" />
+                <asp:BoundField DataField="UnidadNombre" HeaderText="Unidad de medida" />
                 <asp:BoundField DataField="Cantidad" HeaderText="Cantidad (unidades)" />
                 <asp:TemplateField HeaderText="Precio Unitario">
                     <ItemTemplate>Q<%# Eval("PrecioUnitario", "{0:N2}") %></ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="Ganancia Unitaria">
-                    <ItemTemplate>Q<%# Eval("GananciaUnitaria", "{0:N2}") %></ItemTemplate>
-                </asp:TemplateField>
-                <asp:TemplateField HeaderText="Subtotal">
+                <asp:TemplateField HeaderText="Subtotal sin descuento">
                     <ItemTemplate>Q<%# Eval("Subtotal", "{0:N2}") %></ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Descuento aplicado por unidad de medida">
+                    <ItemTemplate>
+                        <%# ((decimal)Eval("DescuentoAplicado") > 0)
+                            ? "Q" + string.Format("{0:N2}", Eval("DescuentoAplicado"))
+                            : "—" %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Subtotal con descuento">
+                    <ItemTemplate>Q<%# Eval("SubtotalConDescuento", "{0:N2}") %></ItemTemplate>
                 </asp:TemplateField>
             </Columns>
         </asp:GridView>
@@ -91,15 +97,20 @@
         </asp:Label>
 
         <div class="text-center mt-2">
-            <asp:Button ID="btnLimpiarLista" runat="server" Text="Limpiar Lista" CssClass="btn btn-secondary"
+            <asp:Button ID="btnLimpiarLista" runat="server" Text="Limpiar Lista"
+                CssClass="btn btn-secondary"
                 OnClick="btnLimpiarLista_Click" />
         </div>
 
-        <!-- Totales con IVA -->
+        <!-- Totales -->
         <div class="text-end mt-4">
-            <h5><asp:Label ID="lblTotal" runat="server" Text="Subtotal: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblTotal" runat="server" Text="Subtotal sin descuento: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblDescuento" runat="server" Text="Descuento total aplicado: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblSubtotalConDesc" runat="server" Text="Subtotal con descuento: Q0.00"></asp:Label></h5>
             <h5><asp:Label ID="lblIVA" runat="server" Text="IVA (12%): Q0.00"></asp:Label></h5>
-            <h4><asp:Label ID="lblTotalFinal" runat="server" Text="Total con IVA: Q0.00"></asp:Label></h4>
+            <h4 class="text-primary fw-bold">
+                <asp:Label ID="lblTotalFinal" runat="server" Text="TOTAL FINAL (con IVA): Q0.00"></asp:Label>
+            </h4>
             <p class="text-success fw-semibold">
                 <asp:Label ID="lblGananciaTotal" runat="server" Text="Ganancia total: Q0.00"></asp:Label>
             </p>
@@ -109,8 +120,9 @@
     <hr class="my-4" />
 
     <!-- Últimas ventas registradas -->
-    <h5 class="mt-4 mb-3">🧾 Últimas ventas registradas</h5>
-    <asp:GridView ID="gvUltimasVentas" runat="server" CssClass="table table-striped table-hover text-center"
+    <h5 class="mt-4 mb-3 fw-bold">🧾 Últimas ventas registradas</h5>
+    <asp:GridView ID="gvUltimasVentas" runat="server"
+        CssClass="table table-striped table-hover text-center"
         AutoGenerateColumns="False" ShowHeaderWhenEmpty="true">
         <Columns>
             <asp:BoundField DataField="FechaHora" HeaderText="Fecha y Hora" />
