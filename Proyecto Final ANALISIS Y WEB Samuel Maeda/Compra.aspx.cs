@@ -19,16 +19,16 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         public int UnidadMedidaId { get; set; }
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
-        public int Descuento { get; set; }
+        public decimal DescuentoAplicado { get; set; }
 
         public decimal SubtotalBruto => Cantidad * PrecioUnitario;
-        public decimal DescuentoAplicado => SubtotalBruto * (Descuento / 100m);
         public decimal SubtotalConDescuento => SubtotalBruto - DescuentoAplicado;
     }
 
     public partial class Compras : Page
     {
         private string conexion = ConfigurationManager.ConnectionStrings["conexion"].ConnectionString;
+
         private List<ItemCompra> ListaCompra
         {
             get => ViewState["ListaCompra"] as List<ItemCompra> ?? new List<ItemCompra>();
@@ -100,7 +100,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlCommand cmd = new SqlCommand("SELECT UnidadMedidaId, Nombre FROM UnidadMedida", con);
+                SqlCommand cmd = new SqlCommand("SELECT UnidadMedidaId, Nombre, ISNULL(DescuentoPorcentaje,0) AS DescuentoPorcentaje, ISNULL(CantidadPorUnidad,1) AS CantidadPorUnidad FROM UnidadMedida", con);
                 con.Open();
                 ddlUnidad.DataSource = cmd.ExecuteReader();
                 ddlUnidad.DataTextField = "Nombre";
@@ -112,8 +112,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 
         protected void ddlEditorial_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int id;
-            if (int.TryParse(ddlEditorial.SelectedValue, out id) && id > 0)
+            if (int.TryParse(ddlEditorial.SelectedValue, out int id) && id > 0)
                 CargarLibros(id);
             else
                 CargarLibros(0);
@@ -147,28 +146,24 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 
         protected void btnAgregarLibro_Click(object sender, EventArgs e)
         {
-            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text))
-                return;
+            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text)) return;
 
             int libroId = int.Parse(ddlLibro.SelectedValue);
             int unidadId = int.Parse(ddlUnidad.SelectedValue);
-            int cantidadIngresada;
-            if (!int.TryParse(txtCantidad.Text.Trim(), out cantidadIngresada) || cantidadIngresada <= 0)
-                return;
+            if (!int.TryParse(txtCantidad.Text.Trim(), out int cantidadIngresada) || cantidadIngresada <= 0) return;
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 string query = @"
                     SELECT L.Titulo,
-                           ISNULL(E.Nombre,'') AS Editorial,
-                           ISNULL(Cat.Nombre,'') AS Categoria,
-                           ISNULL(L.PrecioOverride, Cat.PrecioBase) AS PrecioBase,
-                           ISNULL(UM.CantidadPorUnidad, 1) AS CantidadPorUnidad,
-                           ISNULL(UM.DescuentoPorcentaje, 0) AS DescuentoPorcentaje,
-                           ISNULL(UM.Nombre, '') AS UnidadNombre,
-                           UM.UnidadMedidaId
+                           ISNULL(E.Nombre,'(Sin editorial)') AS Editorial,
+                           C.Nombre AS Categoria,
+                           ISNULL(C.PrecioBase,0) AS PrecioBase,
+                           ISNULL(UM.Nombre,'') AS UnidadNombre,
+                           ISNULL(UM.CantidadPorUnidad,1) AS CantidadPorUnidad,
+                           ISNULL(UM.DescuentoPorcentaje,0) AS DescuentoPorcentaje
                     FROM Libros L
-                    INNER JOIN Categorias Cat ON L.CategoriaId = Cat.CategoriaId
+                    INNER JOIN Categorias C ON L.CategoriaId = C.CategoriaId
                     LEFT JOIN Editoriales E ON L.EditorialId = E.EditorialId
                     LEFT JOIN UnidadMedida UM ON UM.UnidadMedidaId = @UnidadId
                     WHERE L.LibroId = @LibroId";
@@ -184,19 +179,20 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 string editorial = dr["Editorial"].ToString();
                 string categoria = dr["Categoria"].ToString();
                 string unidadNombre = dr["UnidadNombre"].ToString();
-                decimal precio = Convert.ToDecimal(dr["PrecioBase"]);
                 int cantidadPorUnidad = Convert.ToInt32(dr["CantidadPorUnidad"]);
-                int descuento = Convert.ToInt32(dr["DescuentoPorcentaje"]);
-                int unidadMedidaId = Convert.ToInt32(dr["UnidadMedidaId"]);
+                decimal precio = Convert.ToDecimal(dr["PrecioBase"]);
+                decimal descuentoUnidad = Convert.ToDecimal(dr["DescuentoPorcentaje"]);
 
-                int cantidadTotal = cantidadIngresada * Math.Max(1, cantidadPorUnidad);
+                int cantidadTotal = cantidadIngresada * cantidadPorUnidad;
+                decimal subtotalBruto = cantidadTotal * precio;
+                decimal descuentoAplicado = subtotalBruto * (descuentoUnidad / 100m);
 
                 var lista = ListaCompra;
-                var existente = lista.Find(x => x.Titulo == titulo && x.Editorial == editorial &&
-                                                x.Categoria == categoria && x.UnidadNombre == unidadNombre);
+                var existente = lista.Find(x => x.LibroId == libroId && x.UnidadMedidaId == unidadId);
                 if (existente != null)
                 {
                     existente.Cantidad += cantidadTotal;
+                    existente.DescuentoAplicado += descuentoAplicado;
                 }
                 else
                 {
@@ -207,13 +203,12 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                         Editorial = editorial,
                         Categoria = categoria,
                         UnidadNombre = unidadNombre,
-                        UnidadMedidaId = unidadMedidaId,
+                        UnidadMedidaId = unidadId,
                         Cantidad = cantidadTotal,
                         PrecioUnitario = precio,
-                        Descuento = descuento
+                        DescuentoAplicado = descuentoAplicado
                     });
                 }
-
                 ListaCompra = lista;
             }
 
@@ -230,24 +225,39 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             gvCompraActual.DataSource = ListaCompra;
             gvCompraActual.DataBind();
 
-            decimal totalBruto = 0m;
-            decimal ahorro = 0m;
-            decimal totalFinal = 0m;
-
-            foreach (var it in ListaCompra)
+            if (ListaCompra.Count == 0)
             {
-                totalBruto += it.SubtotalBruto;
-                ahorro += it.DescuentoAplicado;
-                totalFinal += it.SubtotalConDescuento;
+                lblMensajeVacio.Visible = true;
+                gvCompraActual.Visible = false;
+                lblSubtotal.Text = "Subtotal sin descuento: Q0.00";
+                lblDescuento.Text = "Descuento total aplicado: Q0.00";
+                lblSubtotalConDesc.Text = "Subtotal con descuento: Q0.00";
+                lblIVA.Text = "IVA (12%): Q0.00";
+                lblTotalFinal.Text = "TOTAL FINAL (con IVA): Q0.00";
+                lblAhorro.Text = "Ahorro total: Q0.00";
+                return;
             }
 
-            lblTotal.Text = $"Subtotal sin descuento: Q{totalBruto:N2}";
-            lblAhorro.Text = $"Descuento total aplicado: Q{ahorro:N2}";
-            lblTotalFinal.Text = $"Total con descuento: Q{totalFinal:N2}";
+            lblMensajeVacio.Visible = false;
+            gvCompraActual.Visible = true;
 
-            bool vacio = ListaCompra.Count == 0;
-            lblMensajeVacio.Visible = vacio;
-            gvCompraActual.Visible = !vacio;
+            decimal subtotal = 0m, descuentoTotal = 0m;
+            foreach (var it in ListaCompra)
+            {
+                subtotal += it.SubtotalBruto;
+                descuentoTotal += it.DescuentoAplicado;
+            }
+
+            decimal subtotalConDesc = subtotal - descuentoTotal;
+            decimal iva = subtotalConDesc * 0.12m;
+            decimal totalFinal = subtotalConDesc + iva;
+
+            lblSubtotal.Text = $"Subtotal sin descuento: Q{subtotal:N2}";
+            lblDescuento.Text = $"Descuento total aplicado: Q{descuentoTotal:N2}";
+            lblSubtotalConDesc.Text = $"Subtotal con descuento: Q{subtotalConDesc:N2}";
+            lblIVA.Text = $"IVA (12%): Q{iva:N2}";
+            lblTotalFinal.Text = $"TOTAL FINAL (con IVA): Q{totalFinal:N2}";
+            lblAhorro.Text = $"Ahorro total: Q{descuentoTotal:N2}";
         }
 
         protected void btnLimpiarLista_Click(object sender, EventArgs e)
@@ -272,19 +282,25 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 
         protected void btnRegistrarCompra_Click(object sender, EventArgs e)
         {
-            if (ddlProveedor.SelectedValue == "0" || ListaCompra.Count == 0)
-                return;
+            if (ddlProveedor.SelectedValue == "0" || ListaCompra.Count == 0) return;
 
-            decimal total = 0m;
+            decimal subtotal = 0m, descuentoTotal = 0m;
             foreach (var it in ListaCompra)
-                total += it.SubtotalConDescuento;
+            {
+                subtotal += it.SubtotalBruto;
+                descuentoTotal += it.DescuentoAplicado;
+            }
+
+            decimal subtotalConDesc = subtotal - descuentoTotal;
+            decimal iva = subtotalConDesc * 0.12m;
+            decimal totalFinal = subtotalConDesc + iva;
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 con.Open();
                 SqlCommand cmd = new SqlCommand("INSERT INTO Compras (ProveedorId, Fecha, Total) VALUES (@P, GETDATE(), @T); SELECT SCOPE_IDENTITY();", con);
                 cmd.Parameters.AddWithValue("@P", int.Parse(ddlProveedor.SelectedValue));
-                cmd.Parameters.AddWithValue("@T", total);
+                cmd.Parameters.AddWithValue("@T", totalFinal);
                 int compraId = Convert.ToInt32(cmd.ExecuteScalar());
 
                 foreach (var it in ListaCompra)
@@ -316,44 +332,44 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 string query = @"
-            SELECT TOP 5
-                CONVERT(varchar(10), C.Fecha, 103) + ' ' + CONVERT(varchar(5), C.Fecha, 108) AS FechaHora,
-                P.Nombre AS Proveedor,
-                STUFF((
-                    SELECT ', ' + CAST(cd.Cantidad / ISNULL(UM.CantidadPorUnidad, 1) AS varchar(20))
-                           + ' ' + LOWER(UM.Nombre)
-                           + ' de ' + ISNULL(L2.Titulo, '')
-                    FROM CompraDetalles cd
-                    LEFT JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                    SELECT TOP 5
+                        CONVERT(varchar(10), C.Fecha, 103) + ' ' + CONVERT(varchar(5), C.Fecha, 108) AS FechaHora,
+                        P.Nombre AS Proveedor,
+                        STUFF((
+                            SELECT ', ' + 
+                                   CAST(CASE WHEN UM.CantidadPorUnidad > 0 THEN (cd.Cantidad / UM.CantidadPorUnidad) ELSE cd.Cantidad END AS varchar(10))
+                                   + ' ' + LOWER(ISNULL(UM.Nombre,'')) + ' de ' + ISNULL(L2.Titulo,'')
+                            FROM CompraDetalles cd
+                            LEFT JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                            LEFT JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
+                            WHERE cd.CompraId = C.CompraId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS LibrosComprados,
+                        STUFF((
+                            SELECT DISTINCT ', ' + ISNULL(Cat.Nombre,'')
+                            FROM CompraDetalles cd
+                            INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                            INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
+                            WHERE cd.CompraId = C.CompraId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
+                        STUFF((
+                            SELECT DISTINCT ', ' + ISNULL(E.Nombre,'')
+                            FROM CompraDetalles cd
+                            INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                            LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
+                            WHERE cd.CompraId = C.CompraId
+                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
+                        CASE 
+                            WHEN SUM(ISNULL(cd.PrecioUnitario,0) * ISNULL(cd.Cantidad,0) * (ISNULL(UM.DescuentoPorcentaje,0)/100.0)) > 0 
+                            THEN 'Q' + FORMAT(SUM(cd.PrecioUnitario * cd.Cantidad * (UM.DescuentoPorcentaje/100.0)), 'N2')
+                            ELSE 'Sin descuento'
+                        END AS Descuentos,
+                        (CASE WHEN C.Total IS NOT NULL THEN C.Total ELSE 0 END) AS TotalConIVA
+                    FROM Compras C
+                    LEFT JOIN CompraDetalles cd ON cd.CompraId = C.CompraId
                     LEFT JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
-                    WHERE cd.CompraId = C.CompraId
-                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS LibrosComprados,
-                STUFF((
-                    SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
-                    FROM CompraDetalles cd
-                    INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
-                    INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
-                    WHERE cd.CompraId = C.CompraId
-                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
-                STUFF((
-                    SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
-                    FROM CompraDetalles cd
-                    INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
-                    LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
-                    WHERE cd.CompraId = C.CompraId
-                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
-                CASE 
-                    WHEN SUM(ISNULL(cd.PrecioUnitario,0) * ISNULL(cd.Cantidad,0) * (ISNULL(UM.DescuentoPorcentaje,0)/100.0)) > 0 
-                    THEN 'Q' + FORMAT(SUM(cd.PrecioUnitario * cd.Cantidad * (UM.DescuentoPorcentaje/100.0)), 'N2')
-                    ELSE 'Sin descuento'
-                END AS Descuentos,
-                C.Total
-            FROM Compras C
-            INNER JOIN Proveedores P ON C.ProveedorId = P.ProveedorId
-            LEFT JOIN CompraDetalles cd ON cd.CompraId = C.CompraId
-            LEFT JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
-            GROUP BY C.CompraId, C.Fecha, P.Nombre, C.Total
-            ORDER BY C.Fecha DESC;";
+                    INNER JOIN Proveedores P ON C.ProveedorId = P.ProveedorId
+                    GROUP BY C.CompraId, C.Fecha, P.Nombre, C.Total
+                    ORDER BY C.Fecha DESC;";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
@@ -362,6 +378,5 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 gvUltimasCompras.DataBind();
             }
         }
-
     }
 }

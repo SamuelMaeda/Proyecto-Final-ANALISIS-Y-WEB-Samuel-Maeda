@@ -111,9 +111,12 @@
 
         <!-- Totales -->
         <div class="text-end mt-4">
-            <h5><asp:Label ID="lblTotal" runat="server" Text="Subtotal sin descuento: Q0.00"></asp:Label></h5>
-            <h5><asp:Label ID="lblAhorro" runat="server" Text="Descuento total aplicado: Q0.00"></asp:Label></h5>
-            <h4 class="text-primary fw-bold"><asp:Label ID="lblTotalFinal" runat="server" Text="Total con descuento: Q0.00"></asp:Label></h4>
+            <h5><asp:Label ID="lblSubtotal" runat="server" Text="Subtotal sin descuento: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblDescuento" runat="server" Text="Descuento total aplicado: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblSubtotalConDesc" runat="server" Text="Subtotal con descuento: Q0.00"></asp:Label></h5>
+            <h5><asp:Label ID="lblIVA" runat="server" Text="IVA (12%): Q0.00"></asp:Label></h5>
+            <h4 class="text-primary fw-bold"><asp:Label ID="lblTotalFinal" runat="server" Text="TOTAL FINAL (con IVA): Q0.00"></asp:Label></h4>
+            <h6 class="text-success"><asp:Label ID="lblAhorro" runat="server" Text="Ahorro total: Q0.00"></asp:Label></h6>
         </div>
     </div>
 
@@ -131,8 +134,8 @@
             <asp:BoundField DataField="Categorias" HeaderText="Categorías" />
             <asp:BoundField DataField="Editoriales" HeaderText="Editoriales" />
             <asp:BoundField DataField="Descuentos" HeaderText="Descuentos" />
-            <asp:TemplateField HeaderText="Total (con descuento)">
-                <ItemTemplate>Q<%# Eval("Total", "{0:N2}") %></ItemTemplate>
+            <asp:TemplateField HeaderText="Total (con IVA)">
+                <ItemTemplate>Q<%# Eval("TotalConIVA", "{0:N2}") %></ItemTemplate>
             </asp:TemplateField>
         </Columns>
     </asp:GridView>

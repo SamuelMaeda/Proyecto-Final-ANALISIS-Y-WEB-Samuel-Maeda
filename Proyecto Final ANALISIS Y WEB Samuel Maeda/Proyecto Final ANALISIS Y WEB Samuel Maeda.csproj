@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="BookRegister.aspx" />
+    <Content Include="Clientes.aspx" />
     <Content Include="Compra.aspx" />
     <Content Include="ForgotPassword.aspx" />
     <Content Include="Images\LuzDelSaberLOGO.jpg" />
@@ -86,6 +87,13 @@
     </Compile>
     <Compile Include="BookRegister.aspx.designer.cs">
       <DependentUpon>BookRegister.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Clientes.aspx.cs">
+      <DependentUpon>Clientes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Clientes.aspx.designer.cs">
+      <DependentUpon>Clientes.aspx</DependentUpon>
     </Compile>
     <Compile Include="Compra.aspx.cs">
       <DependentUpon>Compra.aspx</DependentUpon>

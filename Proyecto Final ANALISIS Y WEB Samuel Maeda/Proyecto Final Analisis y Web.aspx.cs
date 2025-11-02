@@ -43,10 +43,9 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                     SqlCommand cmd = new SqlCommand("SP_ValidarUsuario", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    // Pasa los parámetros tal como los espera tu SP
                     cmd.Parameters.AddWithValue("@Usuario", usuario);
                     cmd.Parameters.AddWithValue("@Contrasenia", contrasenia);
-                    cmd.Parameters.AddWithValue("@Patron", "LuzDelSaber"); // 🔑 Usa aquí la misma passphrase con la que se encriptó
+                    cmd.Parameters.AddWithValue("@Patron", "LuzDelSaber");
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -56,8 +55,14 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 
                     if (dt.Rows.Count > 0)
                     {
-                        // Usuario válido: guardar sesión y redirigir
                         Session["Usuario"] = dt.Rows[0]["Usuario"].ToString();
+
+                        // ✅ Guardar el rol del usuario en sesión (por defecto "Cajero" si no hay campo)
+                        if (dt.Columns.Contains("Rol"))
+                            Session["Rol"] = dt.Rows[0]["Rol"].ToString();
+                        else
+                            Session["Rol"] = "Cajero"; // fallback de seguridad
+
                         Response.Redirect("Index.aspx");
                     }
                     else
@@ -71,5 +76,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 lblError.Text = "Error al conectar con la base de datos: " + ex.Message;
             }
         }
+
     }
 }
