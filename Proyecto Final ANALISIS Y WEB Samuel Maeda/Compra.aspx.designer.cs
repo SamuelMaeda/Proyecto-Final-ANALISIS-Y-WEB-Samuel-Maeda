@@ -150,6 +150,15 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.Label lblAhorro;
 
         /// <summary>
+        /// Control lblTotalFinal.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTotalFinal;
+
+        /// <summary>
         /// Control gvUltimasCompras.
         /// </summary>
         /// <remarks>

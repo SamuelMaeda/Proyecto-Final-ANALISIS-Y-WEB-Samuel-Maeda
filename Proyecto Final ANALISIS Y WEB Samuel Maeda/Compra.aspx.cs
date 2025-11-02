@@ -17,16 +17,18 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         public string Categoria { get; set; }
         public string UnidadNombre { get; set; }
         public int UnidadMedidaId { get; set; }
-        public int Cantidad { get; set; } // cantidad en unidades (convertida)
+        public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
-        public int Descuento { get; set; } // porcentaje
-        public decimal Subtotal => Cantidad * PrecioUnitario * (1 - Descuento / 100m);
+        public int Descuento { get; set; }
+
+        public decimal SubtotalBruto => Cantidad * PrecioUnitario;
+        public decimal DescuentoAplicado => SubtotalBruto * (Descuento / 100m);
+        public decimal SubtotalConDescuento => SubtotalBruto - DescuentoAplicado;
     }
 
     public partial class Compras : Page
     {
         private string conexion = ConfigurationManager.ConnectionStrings["conexion"].ConnectionString;
-
         private List<ItemCompra> ListaCompra
         {
             get => ViewState["ListaCompra"] as List<ItemCompra> ?? new List<ItemCompra>();
@@ -98,7 +100,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // suponemos UnidadMedida tiene UnidadMedidaId, Nombre, CantidadPorUnidad, DescuentoPorcentaje
                 SqlCommand cmd = new SqlCommand("SELECT UnidadMedidaId, Nombre FROM UnidadMedida", con);
                 con.Open();
                 ddlUnidad.DataSource = cmd.ExecuteReader();
@@ -112,8 +113,10 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected void ddlEditorial_SelectedIndexChanged(object sender, EventArgs e)
         {
             int id;
-            if (int.TryParse(ddlEditorial.SelectedValue, out id) && id > 0) CargarLibros(id);
-            else CargarLibros(0);
+            if (int.TryParse(ddlEditorial.SelectedValue, out id) && id > 0)
+                CargarLibros(id);
+            else
+                CargarLibros(0);
         }
 
         protected void ddlLibro_SelectedIndexChanged(object sender, EventArgs e)
@@ -142,19 +145,16 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             }
         }
 
-        protected void ddlUnidad_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // no es obligatorio, queda aquí si quieres mostrar información al cambiar unidad
-        }
-
         protected void btnAgregarLibro_Click(object sender, EventArgs e)
         {
-            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text)) return;
+            if (ddlLibro.SelectedValue == "0" || ddlUnidad.SelectedValue == "0" || string.IsNullOrWhiteSpace(txtCantidad.Text))
+                return;
 
             int libroId = int.Parse(ddlLibro.SelectedValue);
             int unidadId = int.Parse(ddlUnidad.SelectedValue);
             int cantidadIngresada;
-            if (!int.TryParse(txtCantidad.Text.Trim(), out cantidadIngresada) || cantidadIngresada <= 0) return;
+            if (!int.TryParse(txtCantidad.Text.Trim(), out cantidadIngresada) || cantidadIngresada <= 0)
+                return;
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
@@ -189,9 +189,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 int descuento = Convert.ToInt32(dr["DescuentoPorcentaje"]);
                 int unidadMedidaId = Convert.ToInt32(dr["UnidadMedidaId"]);
 
-                int cantidadTotal = cantidadIngresada * (cantidadPorUnidad > 0 ? cantidadPorUnidad : 1);
+                int cantidadTotal = cantidadIngresada * Math.Max(1, cantidadPorUnidad);
 
-                // buscar existente por Titulo, Editorial, Categoria, UnidadNombre
                 var lista = ListaCompra;
                 var existente = lista.Find(x => x.Titulo == titulo && x.Editorial == editorial &&
                                                 x.Categoria == categoria && x.UnidadNombre == unidadNombre);
@@ -218,13 +217,11 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 ListaCompra = lista;
             }
 
-            // limpiar inputs
             txtCantidad.Text = "";
             ddlUnidad.SelectedIndex = 0;
             ddlLibro.SelectedIndex = 0;
             lblStock.Text = "-";
             txtCategoria.Text = "";
-
             ActualizarTabla();
         }
 
@@ -233,30 +230,32 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             gvCompraActual.DataSource = ListaCompra;
             gvCompraActual.DataBind();
 
-            decimal total = 0m;
+            decimal totalBruto = 0m;
             decimal ahorro = 0m;
+            decimal totalFinal = 0m;
+
             foreach (var it in ListaCompra)
             {
-                total += it.Subtotal;
-                ahorro += it.Cantidad * it.PrecioUnitario * (it.Descuento / 100m);
+                totalBruto += it.SubtotalBruto;
+                ahorro += it.DescuentoAplicado;
+                totalFinal += it.SubtotalConDescuento;
             }
 
-            lblTotal.Text = $"Total: Q{total:N2}";
-            lblAhorro.Text = $"Ahorro total: Q{ahorro:N2}";
+            lblTotal.Text = $"Subtotal sin descuento: Q{totalBruto:N2}";
+            lblAhorro.Text = $"Descuento total aplicado: Q{ahorro:N2}";
+            lblTotalFinal.Text = $"Total con descuento: Q{totalFinal:N2}";
 
-            bool vacio = ListaCompra == null || ListaCompra.Count == 0;
+            bool vacio = ListaCompra.Count == 0;
             lblMensajeVacio.Visible = vacio;
             gvCompraActual.Visible = !vacio;
         }
 
-        // Limpia solo la lista de compra (mantiene filtros/inputs)
         protected void btnLimpiarLista_Click(object sender, EventArgs e)
         {
             ListaCompra = new List<ItemCompra>();
             ActualizarTabla();
         }
 
-        // Limpia todo el formulario (proveedor, editorial, libro, unidad, cantidad, lista)
         protected void btnLimpiarTodo_Click(object sender, EventArgs e)
         {
             ddlProveedor.SelectedIndex = 0;
@@ -273,24 +272,23 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 
         protected void btnRegistrarCompra_Click(object sender, EventArgs e)
         {
-            if (ddlProveedor.SelectedValue == "0" || ListaCompra.Count == 0) return;
+            if (ddlProveedor.SelectedValue == "0" || ListaCompra.Count == 0)
+                return;
 
             decimal total = 0m;
-            foreach (var it in ListaCompra) total += it.Subtotal;
+            foreach (var it in ListaCompra)
+                total += it.SubtotalConDescuento;
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 con.Open();
-                // insertar cabecera
                 SqlCommand cmd = new SqlCommand("INSERT INTO Compras (ProveedorId, Fecha, Total) VALUES (@P, GETDATE(), @T); SELECT SCOPE_IDENTITY();", con);
                 cmd.Parameters.AddWithValue("@P", int.Parse(ddlProveedor.SelectedValue));
                 cmd.Parameters.AddWithValue("@T", total);
                 int compraId = Convert.ToInt32(cmd.ExecuteScalar());
 
-                // insertar detalles y actualizar stock
                 foreach (var it in ListaCompra)
                 {
-                    // insertar detalle CON UnidadMedidaId
                     SqlCommand det = new SqlCommand(@"INSERT INTO CompraDetalles (CompraId, LibroId, UnidadMedidaId, Cantidad, PrecioUnitario)
                                                       VALUES (@C, @L, @U, @Cant, @P)", con);
                     det.Parameters.AddWithValue("@C", compraId);
@@ -300,7 +298,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                     det.Parameters.AddWithValue("@P", it.PrecioUnitario);
                     det.ExecuteNonQuery();
 
-                    // actualizar stock en Libros
                     SqlCommand up = new SqlCommand("UPDATE Libros SET StockUnidades = ISNULL(StockUnidades,0) + @Cant WHERE LibroId = @L", con);
                     up.Parameters.AddWithValue("@Cant", it.Cantidad);
                     up.Parameters.AddWithValue("@L", it.LibroId);
@@ -308,7 +305,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 }
             }
 
-            // limpiar lista y refrescar
             ListaCompra = new List<ItemCompra>();
             ActualizarTabla();
             CargarUltimasCompras();
@@ -320,42 +316,44 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 string query = @"
-                    SELECT TOP 5
-                        CONVERT(varchar(10), C.Fecha, 103) AS Fecha,
-                        CONVERT(varchar(5), C.Fecha, 108) AS Hora,
-                        P.Nombre AS Proveedor,
-                        STUFF((
-                            SELECT ', ' + CAST(cd.Cantidad AS varchar(20)) + ' unidades de ' + ISNULL(L2.Titulo, '')
-                            FROM CompraDetalles cd
-                            LEFT JOIN Libros L2 ON cd.LibroId = L2.LibroId
-                            WHERE cd.CompraId = C.CompraId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Productos,
-                        STUFF((
-                            SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
-                            FROM CompraDetalles cd
-                            INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
-                            INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
-                            WHERE cd.CompraId = C.CompraId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
-                        STUFF((
-                            SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
-                            FROM CompraDetalles cd
-                            INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
-                            LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
-                            WHERE cd.CompraId = C.CompraId
-                            FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
-                        CASE 
-                            WHEN EXISTS (
-                                SELECT 1 FROM CompraDetalles cd
-                                INNER JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
-                                WHERE cd.CompraId = C.CompraId AND UM.DescuentoPorcentaje > 0
-                            ) THEN 'Sí'
-                            ELSE 'No'
-                        END AS Descuentos,
-                        C.Total
-                    FROM Compras C
-                    INNER JOIN Proveedores P ON C.ProveedorId = P.ProveedorId
-                    ORDER BY C.Fecha DESC;";
+            SELECT TOP 5
+                CONVERT(varchar(10), C.Fecha, 103) + ' ' + CONVERT(varchar(5), C.Fecha, 108) AS FechaHora,
+                P.Nombre AS Proveedor,
+                STUFF((
+                    SELECT ', ' + CAST(cd.Cantidad / ISNULL(UM.CantidadPorUnidad, 1) AS varchar(20))
+                           + ' ' + LOWER(UM.Nombre)
+                           + ' de ' + ISNULL(L2.Titulo, '')
+                    FROM CompraDetalles cd
+                    LEFT JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                    LEFT JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
+                    WHERE cd.CompraId = C.CompraId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS LibrosComprados,
+                STUFF((
+                    SELECT DISTINCT ', ' + ISNULL(Cat.Nombre, '')
+                    FROM CompraDetalles cd
+                    INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                    INNER JOIN Categorias Cat ON L2.CategoriaId = Cat.CategoriaId
+                    WHERE cd.CompraId = C.CompraId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Categorias,
+                STUFF((
+                    SELECT DISTINCT ', ' + ISNULL(E.Nombre, '')
+                    FROM CompraDetalles cd
+                    INNER JOIN Libros L2 ON cd.LibroId = L2.LibroId
+                    LEFT JOIN Editoriales E ON L2.EditorialId = E.EditorialId
+                    WHERE cd.CompraId = C.CompraId
+                    FOR XML PATH(''), TYPE).value('.', 'varchar(max)'), 1, 2, '') AS Editoriales,
+                CASE 
+                    WHEN SUM(ISNULL(cd.PrecioUnitario,0) * ISNULL(cd.Cantidad,0) * (ISNULL(UM.DescuentoPorcentaje,0)/100.0)) > 0 
+                    THEN 'Q' + FORMAT(SUM(cd.PrecioUnitario * cd.Cantidad * (UM.DescuentoPorcentaje/100.0)), 'N2')
+                    ELSE 'Sin descuento'
+                END AS Descuentos,
+                C.Total
+            FROM Compras C
+            INNER JOIN Proveedores P ON C.ProveedorId = P.ProveedorId
+            LEFT JOIN CompraDetalles cd ON cd.CompraId = C.CompraId
+            LEFT JOIN UnidadMedida UM ON cd.UnidadMedidaId = UM.UnidadMedidaId
+            GROUP BY C.CompraId, C.Fecha, P.Nombre, C.Total
+            ORDER BY C.Fecha DESC;";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
@@ -364,5 +362,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 gvUltimasCompras.DataBind();
             }
         }
+
     }
 }
