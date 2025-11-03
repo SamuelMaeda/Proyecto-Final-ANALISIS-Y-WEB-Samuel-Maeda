@@ -11,17 +11,17 @@ namespace LuzDelSaber
 {
 
 
-    public partial class Inventario
+    public partial class LibrosDadosDeBaja
     {
 
         /// <summary>
-        /// Control btnVerBaja.
+        /// Control btnVerActivos.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnVerBaja;
+        protected global::System.Web.UI.WebControls.Button btnVerActivos;
 
         /// <summary>
         /// Control ddlOrdenarPor.
@@ -69,13 +69,13 @@ namespace LuzDelSaber
         protected global::System.Web.UI.WebControls.Button btnReiniciar;
 
         /// <summary>
-        /// Control gvLibros.
+        /// Control gvLibrosBaja.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvLibros;
+        protected global::System.Web.UI.WebControls.GridView gvLibrosBaja;
 
         /// <summary>
         /// Control lblTotalLibros.

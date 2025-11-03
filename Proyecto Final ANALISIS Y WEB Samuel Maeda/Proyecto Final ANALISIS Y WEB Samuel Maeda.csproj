@@ -74,6 +74,7 @@
     <Content Include="Images\LuzDelSaberLOGO.jpg" />
     <Content Include="Index.aspx" />
     <Content Include="Inventario.aspx" />
+    <Content Include="LibrosDadosDeBaja.aspx" />
     <Content Include="Proyecto Final Analisis y Web.aspx" />
     <Content Include="Recursos\CSS\Estilos.css" />
     <Content Include="ResetPassword.aspx" />
@@ -121,6 +122,13 @@
     </Compile>
     <Compile Include="Inventario.aspx.designer.cs">
       <DependentUpon>Inventario.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LibrosDadosDeBaja.aspx.cs">
+      <DependentUpon>LibrosDadosDeBaja.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LibrosDadosDeBaja.aspx.designer.cs">
+      <DependentUpon>LibrosDadosDeBaja.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proyecto Final Analisis y Web.aspx.cs">

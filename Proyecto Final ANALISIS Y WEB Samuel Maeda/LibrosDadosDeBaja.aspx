@@ -1,14 +1,14 @@
-﻿<%@ Page Title="Inventario" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
-    CodeBehind="Inventario.aspx.cs" Inherits="LuzDelSaber.Inventario" %>
+﻿<%@ Page Title="Libros Dados de Baja" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
+    CodeBehind="LibrosDadosDeBaja.aspx.cs" Inherits="LuzDelSaber.LibrosDadosDeBaja" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
 
     <div class="card shadow p-4">
-        <h2 class="text-center mb-4">📦 Inventario de Libros</h2>
+        <h2 class="text-center mb-4">📕 Libros Dados de Baja</h2>
 
         <div class="d-flex justify-content-between mb-3">
-            <asp:Button ID="btnVerBaja" runat="server" Text="📕 Ver libros dados de baja"
-                CssClass="btn btn-outline-danger" OnClick="btnVerBaja_Click" />
+            <asp:Button ID="btnVerActivos" runat="server" Text="📦 Ver libros activos"
+                CssClass="btn btn-outline-success" OnClick="btnVerActivos_Click" />
 
             <div class="text-end">
                 <label class="me-2 fw-bold">Ordenar por:</label>
@@ -42,13 +42,13 @@
             </div>
         </div>
 
-        <asp:GridView ID="gvLibros" runat="server"
+        <asp:GridView ID="gvLibrosBaja" runat="server"
             CssClass="table table-bordered table-hover text-center align-middle"
             AutoGenerateColumns="False" DataKeyNames="LibroId"
             AllowPaging="True" PageSize="10"
-            OnPageIndexChanging="gvLibros_PageIndexChanging"
-            OnRowDataBound="gvLibros_RowDataBound"
-            OnRowCommand="gvLibros_RowCommand">
+            OnPageIndexChanging="gvLibrosBaja_PageIndexChanging"
+            OnRowDataBound="gvLibrosBaja_RowDataBound"
+            OnRowCommand="gvLibrosBaja_RowCommand">
 
             <Columns>
                 <asp:BoundField DataField="LibroId" HeaderText="ID" ReadOnly="True" />
@@ -67,13 +67,13 @@
                     </ItemTemplate>
                 </asp:TemplateField>
 
-                <asp:TemplateField HeaderText="Dar de baja">
+                <asp:TemplateField HeaderText="Reactivar">
                     <ItemTemplate>
-                        <asp:Button ID="btnDarDeBaja" runat="server" Text="🚫 Dar de baja"
-                            CssClass="btn btn-sm btn-danger"
-                            CommandName="DarDeBaja"
+                        <asp:Button ID="btnReactivar" runat="server" Text="♻️ Reactivar"
+                            CssClass="btn btn-sm btn-success"
+                            CommandName="Reactivar"
                             CommandArgument='<%# Eval("LibroId") %>'
-                            OnClientClick="return confirm('¿Deseas dar de baja este libro?');" />
+                            OnClientClick="return confirm('¿Deseas reactivar este libro?');" />
                     </ItemTemplate>
                 </asp:TemplateField>
 
