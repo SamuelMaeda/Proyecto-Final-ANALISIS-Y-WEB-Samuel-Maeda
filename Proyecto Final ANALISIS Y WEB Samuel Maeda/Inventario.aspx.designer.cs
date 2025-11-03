@@ -15,15 +15,6 @@ namespace LuzDelSaber
     {
 
         /// <summary>
-        /// Control lblBuscar.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBuscar;
-
-        /// <summary>
         /// Control txtBuscar.
         /// </summary>
         /// <remarks>
@@ -51,15 +42,6 @@ namespace LuzDelSaber
         protected global::System.Web.UI.WebControls.Button btnReiniciar;
 
         /// <summary>
-        /// Control lblOrdenarPor.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOrdenarPor;
-
-        /// <summary>
         /// Control ddlOrdenarPor.
         /// </summary>
         /// <remarks>
@@ -67,15 +49,6 @@ namespace LuzDelSaber
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlOrdenarPor;
-
-        /// <summary>
-        /// Control lblOrden.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOrden;
 
         /// <summary>
         /// Control ddlOrden.
@@ -87,21 +60,21 @@ namespace LuzDelSaber
         protected global::System.Web.UI.WebControls.DropDownList ddlOrden;
 
         /// <summary>
-        /// Control btnOrdenar.
+        /// Control gvLibros.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnOrdenar;
+        protected global::System.Web.UI.WebControls.GridView gvLibros;
 
         /// <summary>
-        /// Control gvInventario.
+        /// Control lblTotalLibros.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvInventario;
+        protected global::System.Web.UI.WebControls.Label lblTotalLibros;
     }
 }

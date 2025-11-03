@@ -1,59 +1,103 @@
-﻿<%@ Page Title="Inventario" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Inventario.aspx.cs" Inherits="LuzDelSaber.Inventario" %>
+﻿<%@ Page Title="Inventario" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
+    CodeBehind="Inventario.aspx.cs" Inherits="LuzDelSaber.Inventario" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <div class="container mt-4">
+
+    <div class="card shadow p-4">
         <h2 class="text-center mb-4">📦 Inventario de Libros</h2>
 
-        <!-- Sección para búsqueda -->
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <asp:Label ID="lblBuscar" runat="server" Text="Buscar:" CssClass="form-label"></asp:Label>
-                <div class="input-group">
-                    <asp:TextBox ID="txtBuscar" runat="server" CssClass="form-control" placeholder="Buscar por nombre, autor, editorial o categoría..."></asp:TextBox>
-                    <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary" OnClick="btnBuscar_Click" />
-                    <asp:Button ID="btnReiniciar" runat="server" Text="Limpiar" CssClass="btn btn-secondary" OnClick="btnReiniciar_Click" />
-                </div>
+    
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6 d-flex">
+                <asp:TextBox ID="txtBuscar" runat="server" CssClass="form-control me-2" placeholder="Buscar libro, editorial o categoría..." />
+                <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary me-2" OnClick="btnBuscar_Click" />
+                <asp:Button ID="btnReiniciar" runat="server" Text="Limpiar" CssClass="btn btn-secondary" OnClick="btnReiniciar_Click" />
+            </div>
+
+            <div class="col-md-6 text-end">
+                <label for="ddlOrdenarPor" class="me-2 fw-bold">Ordenar por:</label>
+                <asp:DropDownList ID="ddlOrdenarPor" runat="server" CssClass="form-select d-inline-block w-auto me-2">
+                    <asp:ListItem Value="L.LibroId">ID</asp:ListItem>
+                    <asp:ListItem Value="L.Titulo">Título</asp:ListItem>
+                    <asp:ListItem Value="E.Nombre">Editorial</asp:ListItem>
+                    <asp:ListItem Value="C.Nombre">Categoría</asp:ListItem>
+                    <asp:ListItem Value="C.PrecioBase">Precio</asp:ListItem>
+                    <asp:ListItem Value="L.StockUnidades">Stock</asp:ListItem>
+                </asp:DropDownList>
+
+                <label for="ddlOrden" class="me-2 fw-bold">Orden:</label>
+                <asp:DropDownList ID="ddlOrden" runat="server" CssClass="form-select d-inline-block w-auto">
+                    <asp:ListItem Value="ASC">Ascendente</asp:ListItem>
+                    <asp:ListItem Value="DESC">Descendente</asp:ListItem>
+                </asp:DropDownList>
             </div>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <asp:Label ID="lblOrdenarPor" runat="server" Text="Ordenar por:" CssClass="form-label"></asp:Label>
-                <asp:DropDownList ID="ddlOrdenarPor" runat="server" CssClass="form-select">
-                    <asp:ListItem Text="ID" Value="LibroId" />
-                    <asp:ListItem Text="Nombre" Value="Titulo" />
-                    <asp:ListItem Text="Autor" Value="Autor" />
-                    <asp:ListItem Text="Editorial" Value="Editorial" />
-                    <asp:ListItem Text="Categoría" Value="Categoria" />
-                    <asp:ListItem Text="Precio" Value="PrecioBase" />
-                    <asp:ListItem Text="Stock" Value="StockUnidades" />
-                </asp:DropDownList>
-            </div>
-            <div class="col-md-4">
-                <asp:Label ID="lblOrden" runat="server" Text="Orden:" CssClass="form-label"></asp:Label>
-                <asp:DropDownList ID="ddlOrden" runat="server" CssClass="form-select">
-                    <asp:ListItem Text="Ascendente" Value="ASC" Selected="True" />
-                    <asp:ListItem Text="Descendente" Value="DESC" />
-                </asp:DropDownList>
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <asp:Button ID="btnOrdenar" runat="server" Text="Aplicar Orden" CssClass="btn btn-primary w-100" OnClick="btnBuscar_Click" />
-            </div>
-        </div>
+      
+        <asp:GridView ID="gvLibros" runat="server" CssClass="table table-bordered table-hover text-center align-middle"
+            AutoGenerateColumns="False" DataKeyNames="LibroId"
+            AllowPaging="True" PageSize="10"
+            OnPageIndexChanging="gvLibros_PageIndexChanging"
+            OnRowEditing="gvLibros_RowEditing"
+            OnRowCancelingEdit="gvLibros_RowCancelingEdit"
+            OnRowUpdating="gvLibros_RowUpdating"
+            OnRowDeleting="gvLibros_RowDeleting"
+            OnRowDataBound="gvLibros_RowDataBound">
 
-        <asp:GridView ID="gvInventario" runat="server" AutoGenerateColumns="False" CssClass="table table-bordered table-hover"
-            AllowPaging="True" PageSize="10" OnPageIndexChanging="gvInventario_PageIndexChanging">
             <Columns>
-                <asp:BoundField DataField="LibroId" HeaderText="ID" />
-                <asp:BoundField DataField="Titulo" HeaderText="Nombre" />
-                <asp:BoundField DataField="Autor" HeaderText="Autor" />
+                <asp:BoundField DataField="LibroId" HeaderText="ID" ReadOnly="True" />
+                <asp:BoundField DataField="Titulo" HeaderText="Título" />
                 <asp:BoundField DataField="Editorial" HeaderText="Editorial" />
                 <asp:BoundField DataField="Categoria" HeaderText="Categoría" />
-                <asp:BoundField DataField="PrecioBase" HeaderText="Precio" DataFormatString="Q{0:N2}" HtmlEncode="false" />
-                <asp:BoundField DataField="StockUnidades" HeaderText="Stock" />
-                <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
+
+                <asp:TemplateField HeaderText="Precio de venta">
+                    <ItemTemplate>
+                        <%# "Q" + String.Format("{0:N2}", Eval("PrecioVenta")) %>
+                    </ItemTemplate>
+                    <EditItemTemplate>
+                        <asp:TextBox ID="txtPrecio" runat="server" CssClass="form-control text-center"
+                            Text='<%# Bind("PrecioVenta") %>' />
+                    </EditItemTemplate>
+                </asp:TemplateField>
+
+                <asp:TemplateField HeaderText="Stock (unidades)">
+                    <ItemTemplate>
+                        <span style='<%# ObtenerColorStock(Eval("StockUnidades")) %>'>
+                            <%# Eval("StockUnidades") %>
+                        </span>
+                    </ItemTemplate>
+                    <EditItemTemplate>
+                        <asp:TextBox ID="txtStock" runat="server" CssClass="form-control text-center"
+                            Text='<%# Bind("StockUnidades") %>' />
+                    </EditItemTemplate>
+                </asp:TemplateField>
+
+             
+                <asp:TemplateField HeaderText="Acciones">
+                    <ItemTemplate>
+                        <asp:LinkButton ID="lnkEditar" runat="server" CommandName="Edit" CssClass="btn btn-sm btn-warning">✏️ Editar</asp:LinkButton>
+                    </ItemTemplate>
+                    <EditItemTemplate>
+                        <asp:LinkButton ID="lnkActualizar" runat="server" CommandName="Update" CssClass="btn btn-sm btn-success me-1">Guardar</asp:LinkButton>
+                        <asp:LinkButton ID="lnkCancelar" runat="server" CommandName="Cancel" CssClass="btn btn-sm btn-secondary">Cancelar</asp:LinkButton>
+                    </EditItemTemplate>
+                </asp:TemplateField>
+                
+      
+                <asp:TemplateField HeaderText="Eliminar">
+                    <ItemTemplate>
+                        <asp:Button ID="btnEliminar" runat="server" Text="🗑️ Eliminar"
+                            CssClass="btn btn-sm btn-danger"
+                            CommandName="Delete"
+                            Visible="false"
+                            OnClientClick="return confirm('¿Seguro que deseas eliminar este libro?');" />
+                    </ItemTemplate>
+                </asp:TemplateField>
             </Columns>
-            <PagerStyle CssClass="gridview-pager" />
         </asp:GridView>
+
+        <div class="text-end mt-2">
+            <asp:Label ID="lblTotalLibros" runat="server" CssClass="fw-bold"></asp:Label>
+        </div>
     </div>
 </asp:Content>
