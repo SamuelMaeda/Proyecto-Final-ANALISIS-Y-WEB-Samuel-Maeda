@@ -13,7 +13,15 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
-                CargarClientes();
+            {
+                if (Request.QueryString["from"] == "ventas")
+                    pnlVolverVentas.Visible = true;
+            }
+        }
+
+        protected void btnVolverVentas_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Venta.aspx");
         }
 
         private void CargarClientes()

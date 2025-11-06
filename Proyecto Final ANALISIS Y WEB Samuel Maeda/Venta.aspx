@@ -1,5 +1,6 @@
-﻿<%@ Page Title="Registrar Venta" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
-    CodeBehind="Venta.aspx.cs" Inherits="LuzDelSaber.Ventas" %>
+﻿<%@ Page Title="Registrar Venta" Language="C#" MasterPageFile="~/Site.Master"
+    AutoEventWireup="true" CodeBehind="Venta.aspx.cs"
+    Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.Ventas" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -10,14 +11,21 @@
             <!-- Cliente -->
             <div class="col-md-4">
                 <label class="form-label">Cliente:</label>
-                <asp:DropDownList ID="ddlCliente" runat="server" CssClass="form-select"></asp:DropDownList>
+                <!-- Clase select2 para inicializar -->
+                <asp:DropDownList ID="ddlCliente" runat="server" CssClass="form-select select2"
+                    AutoPostBack="true" OnSelectedIndexChanged="ddlCliente_SelectedIndexChanged" 
+                    data-placeholder="Buscar cliente..."></asp:DropDownList>
+                <div class="mt-2">
+                    <asp:Button ID="btnAgregarCliente" runat="server" Text="➕ Agregar Cliente" CssClass="btn btn-outline-primary btn-sm w-100" OnClick="btnAgregarCliente_Click" />
+                </div>
             </div>
 
             <!-- Libro -->
             <div class="col-md-4">
                 <label class="form-label">Libro:</label>
-                <asp:DropDownList ID="ddlLibro" runat="server" CssClass="form-select" AutoPostBack="true"
-                    OnSelectedIndexChanged="ddlLibro_SelectedIndexChanged"></asp:DropDownList>
+                <asp:DropDownList ID="ddlLibro" runat="server" CssClass="form-select select2"
+                    AutoPostBack="true" OnSelectedIndexChanged="ddlLibro_SelectedIndexChanged"
+                    data-placeholder="Buscar libro..."></asp:DropDownList>
             </div>
 
             <!-- Categoría -->
@@ -30,14 +38,14 @@
             <!-- Unidad -->
             <div class="col-md-4">
                 <label class="form-label">Unidad de medida:</label>
-                <asp:DropDownList ID="ddlUnidad" runat="server" CssClass="form-select"></asp:DropDownList>
+                <asp:DropDownList ID="ddlUnidad" runat="server" CssClass="form-select select2" data-placeholder="Seleccione unidad..."></asp:DropDownList>
             </div>
 
             <!-- Cantidad -->
             <div class="col-md-4">
                 <label class="form-label">Cantidad:</label>
-                <asp:TextBox ID="txtCantidad" runat="server" CssClass="form-control" TextMode="Number"
-                    placeholder="Ejemplo: 5" min="1"></asp:TextBox>
+                <asp:TextBox ID="txtCantidad" runat="server" CssClass="form-control"
+                    TextMode="Number" placeholder="Ejemplo: 5" min="1"></asp:TextBox>
             </div>
 
             <!-- Stock -->
@@ -58,7 +66,8 @@
 
         <hr class="my-4" />
 
-        <!-- Lista de libros -->
+        <asp:Label ID="lblMensaje" runat="server" CssClass="mb-3 d-block"></asp:Label>
+
         <h4 class="text-center mb-3 fw-bold" style="font-size: 1.4rem;">📚 Libros en la venta actual</h4>
 
         <asp:GridView ID="gvVentaActual" runat="server"
@@ -78,7 +87,7 @@
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Descuento aplicado por unidad de medida">
                     <ItemTemplate>
-                        <%# ((decimal)Eval("DescuentoAplicado") > 0)
+                        <%# Convert.ToDecimal(Eval("DescuentoAplicado")) > 0
                             ? "Q" + string.Format("{0:N2}", Eval("DescuentoAplicado"))
                             : "—" %>
                     </ItemTemplate>
@@ -89,7 +98,6 @@
             </Columns>
         </asp:GridView>
 
-        <!-- Mensaje cuando la lista está vacía -->
         <asp:Label ID="lblMensajeVacio" runat="server"
             Text="Todavía no se ha seleccionado ningún libro en la lista de ventas."
             CssClass="alert alert-info text-center d-block"
@@ -102,7 +110,6 @@
                 OnClick="btnLimpiarLista_Click" />
         </div>
 
-        <!-- Totales -->
         <div class="text-end mt-4">
             <h5><asp:Label ID="lblTotal" runat="server" Text="Subtotal sin descuento: Q0.00"></asp:Label></h5>
             <h5><asp:Label ID="lblDescuento" runat="server" Text="Descuento total aplicado: Q0.00"></asp:Label></h5>
@@ -119,18 +126,38 @@
 
     <hr class="my-4" />
 
-    <!-- Últimas ventas registradas -->
+    <!-- SECCIÓN FACTURA (botón de descarga) -->
+    <div class="card shadow p-3 bg-light text-center mb-4">
+        <h5 class="fw-bold mb-3">🧾 Última factura generada</h5>
+        <asp:Panel ID="pnlFactura" runat="server" Visible="false">
+            <div class="mt-3">
+                <asp:HyperLink ID="lnkDescargarFactura" runat="server" 
+                    CssClass="btn btn-primary fw-bold" 
+                    Target="_blank" Visible="false">
+                    📄 Abrir Factura PDF
+                </asp:HyperLink>
+            </div>
+        </asp:Panel>
+        <asp:Label ID="lblNoFactura" runat="server" 
+            Text="No hay facturas generadas aún."
+            CssClass="text-muted" Visible="true">
+        </asp:Label>
+    </div>
+
+    <!-- ÚLTIMAS VENTAS -->
     <h5 class="mt-4 mb-3 fw-bold">🧾 Últimas ventas registradas</h5>
     <asp:GridView ID="gvUltimasVentas" runat="server"
         CssClass="table table-striped table-hover text-center"
         AutoGenerateColumns="False" ShowHeaderWhenEmpty="true">
         <Columns>
-            <asp:BoundField DataField="FechaHora" HeaderText="Fecha y Hora" />
+            <asp:BoundField DataField="Fecha" HeaderText="Fecha y Hora" />
             <asp:BoundField DataField="Cliente" HeaderText="Cliente" />
-            <asp:BoundField DataField="LibrosVendidos" HeaderText="Libros Vendidos" />
-            <asp:BoundField DataField="Categorias" HeaderText="Categorías" />
-            <asp:BoundField DataField="Editoriales" HeaderText="Editoriales" />
-            <asp:BoundField DataField="DescuentoAplicado" HeaderText="Descuentos" />
+            <asp:BoundField DataField="LibrosVendidos" HeaderText="Detalles de la Venta" />
+            <asp:BoundField DataField="Categoria" HeaderText="Categoría" />
+            <asp:BoundField DataField="Editorial" HeaderText="Editoriales" />
+            <asp:TemplateField HeaderText="Descuento total">
+                <ItemTemplate><%# Eval("DescuentoAplicado") is DBNull ? "Q0.00" : "Q" + string.Format("{0:N2}", Eval("DescuentoAplicado")) %></ItemTemplate>
+            </asp:TemplateField>
             <asp:TemplateField HeaderText="Total (con IVA)">
                 <ItemTemplate>Q<%# Eval("TotalConIVA", "{0:N2}") %></ItemTemplate>
             </asp:TemplateField>

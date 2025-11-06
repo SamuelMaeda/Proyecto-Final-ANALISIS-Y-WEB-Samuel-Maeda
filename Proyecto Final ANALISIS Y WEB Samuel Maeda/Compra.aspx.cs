@@ -81,8 +81,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             using (SqlConnection con = new SqlConnection(conexion))
             {
                 string sql = editorialId == 0
-                    ? "SELECT LibroId, Titulo FROM Libros ORDER BY Titulo"
-                    : "SELECT LibroId, Titulo FROM Libros WHERE EditorialId = @EditorialId ORDER BY Titulo";
+                    ? "SELECT LibroId, Titulo FROM Libros WHERE Activo = 1 ORDER BY Titulo"
+                    : "SELECT LibroId, Titulo FROM Libros WHERE Activo = 1 AND EditorialId = @EditorialId ORDER BY Titulo";
 
                 SqlCommand cmd = new SqlCommand(sql, con);
                 if (editorialId != 0) cmd.Parameters.AddWithValue("@EditorialId", editorialId);
@@ -95,6 +95,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 ddlLibro.Items.Insert(0, new ListItem("-- Seleccione un libro --", "0"));
             }
         }
+
+
 
         private void CargarUnidades()
         {

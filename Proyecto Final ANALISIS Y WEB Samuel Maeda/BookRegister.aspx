@@ -1,72 +1,91 @@
-﻿<%@ Page Title="Registro de Libros" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true"
-    CodeBehind="BookRegister.aspx.cs" Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.BookRegister" %>
+﻿<%@ Page Title="Registrar Libro" Language="C#" MasterPageFile="~/Site.Master"
+    AutoEventWireup="true" CodeBehind="BookRegister.aspx.cs"
+    Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.BookRegister" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="card shadow p-4">
-        <h2 class="text-center mb-4">📚 Registro de Libros</h2>
+        <h2 class="text-center mb-4">📚 Registrar Nuevo Libro</h2>
 
-        <!-- Formulario de registro -->
         <div class="row g-3">
+            <!-- Título -->
             <div class="col-md-6">
                 <label class="form-label">Título:</label>
                 <asp:TextBox ID="txtTitulo" runat="server" CssClass="form-control" placeholder="Ingrese el título del libro"></asp:TextBox>
             </div>
 
+            <!-- Autor -->
             <div class="col-md-6">
                 <label class="form-label">Autor:</label>
-                <asp:TextBox ID="txtAutor" runat="server" CssClass="form-control" placeholder="Ingrese el autor"></asp:TextBox>
+                <asp:TextBox ID="txtAutor" runat="server" CssClass="form-control" placeholder="Ingrese el autor del libro"></asp:TextBox>
             </div>
-            
-            <div class="col-md-6">
-                <label class="form-label">Editorial:</label>
-                <asp:DropDownList ID="ddlEditorial" runat="server" CssClass="form-select">
+
+            <!-- Categoría -->
+            <div class="col-md-4">
+                <label class="form-label">Categoría:</label>
+                <asp:DropDownList ID="ddlCategoria" runat="server" CssClass="form-select"
+                    AutoPostBack="true" OnSelectedIndexChanged="ddlCategoria_SelectedIndexChanged">
                 </asp:DropDownList>
             </div>
 
-
+            <!-- Editorial -->
             <div class="col-md-4">
-                <label class="form-label">Categoría:</label>
-                <asp:DropDownList ID="ddlCategoria" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlCategoria_SelectedIndexChanged"></asp:DropDownList>
+                <label class="form-label">Editorial:</label>
+                <asp:DropDownList ID="ddlEditorial" runat="server" CssClass="form-select"></asp:DropDownList>
             </div>
 
+            <!-- Stock -->
             <div class="col-md-4">
-                <label class="form-label">Precio (según categoría):</label>
-                <asp:TextBox ID="txtPrecio" runat="server" CssClass="form-control" ReadOnly="true"></asp:TextBox>
+                <label class="form-label">Stock (unidades):</label>
+                <asp:TextBox ID="txtStock" runat="server" CssClass="form-control" TextMode="Number" min="0" placeholder="Ejemplo: 50"></asp:TextBox>
             </div>
 
-            <div class="col-md-4">
-                <label class="form-label">Stock Inicial (Unidades):</label>
-                <asp:TextBox ID="txtStock" runat="server" CssClass="form-control" TextMode="Number" placeholder="Ejemplo: 10"></asp:TextBox>
+            <!-- Precio de compra -->
+            <div class="col-md-6">
+                <label class="form-label">Precio de Compra (Q):</label>
+                <asp:TextBox ID="txtPrecioCompra" runat="server" CssClass="form-control" TextMode="Number" step="0.01" placeholder="Ejemplo: 50.00"></asp:TextBox>
             </div>
 
-            <div class="col-md-12">
-                <label class="form-label">Descripción:</label>
-                <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" placeholder="Descripción del libro"></asp:TextBox>
+            <!-- Precio de venta -->
+            <div class="col-md-6">
+                <label class="form-label">Precio de Venta (Q):</label>
+                <asp:TextBox ID="txtPrecioVenta" runat="server" CssClass="form-control" TextMode="Number" step="0.01" placeholder="Ejemplo: 80.00"></asp:TextBox>
             </div>
 
-            <div class="text-center mt-3">
-                <asp:Button ID="btnAgregar" runat="server" Text="Agregar Libro" CssClass="btn btn-success" OnClick="btnAgregar_Click" />
-                <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar" CssClass="btn btn-secondary" OnClick="btnLimpiar_Click" />
+            <!-- Botones -->
+            <div class="text-center mt-4">
+                <asp:Button ID="btnRegistrar" runat="server" Text="Registrar Libro" CssClass="btn btn-primary px-4"
+                    OnClick="btnRegistrar_Click" />
+                <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar Campos" CssClass="btn btn-secondary px-4 ms-2"
+                    OnClick="Page_Load" CausesValidation="false" />
             </div>
         </div>
 
         <hr class="my-4" />
 
-        <!-- Tabla de libros -->
-        <h4 class="text-center mb-3">📋 Lista de Libros Registrados</h4>
-        <asp:GridView ID="gvLibros" runat="server" CssClass="table table-striped table-hover"
-            AutoGenerateColumns="False" DataKeyNames="LibroId" OnRowDeleting="gvLibros_RowDeleting">
+        <!-- Mensaje de estado -->
+        <div class="text-center mb-4">
+            <asp:Label ID="lblMensaje" runat="server" Text="" CssClass="fw-bold"></asp:Label>
+        </div>
+
+        <!-- Últimos 3 libros agregados -->
+        <h4 class="fw-bold text-center mb-3">📘 Últimos 3 libros agregados</h4>
+        <asp:GridView ID="gvUltimosLibros" runat="server"
+            CssClass="table table-striped table-hover text-center"
+            AutoGenerateColumns="False" ShowHeaderWhenEmpty="true">
             <Columns>
                 <asp:BoundField DataField="LibroId" HeaderText="ID" />
                 <asp:BoundField DataField="Titulo" HeaderText="Título" />
-                <asp:BoundField DataField="Autor" HeaderText="Autor" />
+                <asp:BoundField DataField="Editorial" HeaderText="Editorial" />
                 <asp:BoundField DataField="Categoria" HeaderText="Categoría" />
-                <asp:BoundField DataField="PrecioBase" HeaderText="Precio (Q)" />
-                <asp:BoundField DataField="StockUnidades" HeaderText="Stock" />
-                <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
-                <asp:CommandField ShowDeleteButton="True" DeleteText="Eliminar" />
+                <asp:TemplateField HeaderText="Precio compra">
+                    <ItemTemplate>Q<%# Eval("PrecioCompra", "{0:N2}") %></ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Precio venta">
+                    <ItemTemplate>Q<%# Eval("PrecioVenta", "{0:N2}") %></ItemTemplate>
+                </asp:TemplateField>
+                <asp:BoundField DataField="StockUnidades" HeaderText="Stock (unidades)" />
             </Columns>
         </asp:GridView>
-
     </div>
 </asp:Content>
+    

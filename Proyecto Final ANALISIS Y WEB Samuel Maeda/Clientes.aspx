@@ -6,6 +6,14 @@
         <h2 class="text-center mb-4">👥 Registro de Clientes</h2>
 
         <div class="row g-3">
+           
+            <asp:Panel ID="pnlVolverVentas" runat="server" Visible="false" CssClass="mb-3 text-end">
+    <asp:Button ID="btnVolverVentas" runat="server" Text="⬅ Volver a Ventas" 
+        CssClass="btn btn-outline-secondary btn-sm"
+        OnClick="btnVolverVentas_Click" />
+</asp:Panel>
+
+            
             <!-- Nombre -->
             <div class="col-md-6">
                 <label class="form-label">Nombre completo:</label>

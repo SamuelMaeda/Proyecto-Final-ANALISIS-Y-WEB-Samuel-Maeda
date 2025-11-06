@@ -15,6 +15,15 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
     {
 
         /// <summary>
+        /// Control HeadContent.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder HeadContent;
+
+        /// <summary>
         /// Control imgLogoTop.
         /// </summary>
         /// <remarks>
@@ -49,5 +58,14 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
+
+        /// <summary>
+        /// Control ScriptsContent.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder ScriptsContent;
     }
 }
