@@ -101,10 +101,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AjusteInventario.aspx" />
     <Content Include="BookRegister.aspx" />
     <Content Include="Clientes.aspx" />
     <Content Include="Compra.aspx" />
     <Content Include="ForgotPassword.aspx" />
+    <Content Include="GestionEmpleados.aspx" />
+    <Content Include="GestionProveedores.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Images\LuzDelSaberLOGO.jpg" />
     <Content Include="Index.aspx" />
@@ -112,11 +115,19 @@
     <Content Include="LibrosDadosDeBaja.aspx" />
     <Content Include="Proyecto Final Analisis y Web.aspx" />
     <Content Include="Recursos\CSS\Estilos.css" />
+    <Content Include="Reportes.aspx" />
     <Content Include="ResetPassword.aspx" />
     <Content Include="Venta.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AjusteInventario.aspx.cs">
+      <DependentUpon>AjusteInventario.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AjusteInventario.aspx.designer.cs">
+      <DependentUpon>AjusteInventario.aspx</DependentUpon>
+    </Compile>
     <Compile Include="BookRegister.aspx.cs">
       <DependentUpon>BookRegister.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -143,6 +154,20 @@
     </Compile>
     <Compile Include="ForgotPassword.aspx.designer.cs">
       <DependentUpon>ForgotPassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GestionEmpleados.aspx.cs">
+      <DependentUpon>GestionEmpleados.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionEmpleados.aspx.designer.cs">
+      <DependentUpon>GestionEmpleados.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GestionProveedores.aspx.cs">
+      <DependentUpon>GestionProveedores.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionProveedores.aspx.designer.cs">
+      <DependentUpon>GestionProveedores.aspx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -175,6 +200,13 @@
     </Compile>
     <Compile Include="Proyecto Final Analisis y Web.aspx.designer.cs">
       <DependentUpon>Proyecto Final Analisis y Web.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes.aspx.cs">
+      <DependentUpon>Reportes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reportes.aspx.designer.cs">
+      <DependentUpon>Reportes.aspx</DependentUpon>
     </Compile>
     <Compile Include="ResetPassword.aspx.cs">
       <DependentUpon>ResetPassword.aspx</DependentUpon>

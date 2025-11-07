@@ -11,26 +11,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 {
 
 
-    public partial class Clientes
+    public partial class GestionProveedores
     {
-
-        /// <summary>
-        /// Control pnlVolverVentas.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlVolverVentas;
-
-        /// <summary>
-        /// Control btnVolverVentas.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnVolverVentas;
 
         /// <summary>
         /// Control txtNombre.
@@ -42,40 +24,22 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.TextBox txtNombre;
 
         /// <summary>
-        /// Control txtNIT.
+        /// Control txtContacto.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNIT;
+        protected global::System.Web.UI.WebControls.TextBox txtContacto;
 
         /// <summary>
-        /// Control txtTelefono.
+        /// Control btnGuardar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTelefono;
-
-        /// <summary>
-        /// Control txtCorreo.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCorreo;
-
-        /// <summary>
-        /// Control btnRegistrarCliente.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRegistrarCliente;
+        protected global::System.Web.UI.WebControls.Button btnGuardar;
 
         /// <summary>
         /// Control txtBuscar.
@@ -105,21 +69,12 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         protected global::System.Web.UI.WebControls.Button btnLimpiar;
 
         /// <summary>
-        /// Control gvClientes.
+        /// Control gvProveedores.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvClientes;
-
-        /// <summary>
-        /// Control lblMensajeVacio.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMensajeVacio;
+        protected global::System.Web.UI.WebControls.GridView gvProveedores;
     }
 }

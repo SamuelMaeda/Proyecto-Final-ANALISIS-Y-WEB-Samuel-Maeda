@@ -11,115 +11,106 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 {
 
 
-    public partial class Clientes
+    public partial class Reportes
     {
 
         /// <summary>
-        /// Control pnlVolverVentas.
+        /// Control txtDesdeCompras.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlVolverVentas;
+        protected global::System.Web.UI.WebControls.TextBox txtDesdeCompras;
 
         /// <summary>
-        /// Control btnVolverVentas.
+        /// Control txtHastaCompras.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnVolverVentas;
+        protected global::System.Web.UI.WebControls.TextBox txtHastaCompras;
 
         /// <summary>
-        /// Control txtNombre.
+        /// Control btnFiltrarCompras.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNombre;
+        protected global::System.Web.UI.WebControls.Button btnFiltrarCompras;
 
         /// <summary>
-        /// Control txtNIT.
+        /// Control btnLimpiarCompras.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNIT;
+        protected global::System.Web.UI.WebControls.Button btnLimpiarCompras;
 
         /// <summary>
-        /// Control txtTelefono.
+        /// Control gvHistorialCompras.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTelefono;
+        protected global::System.Web.UI.WebControls.GridView gvHistorialCompras;
 
         /// <summary>
-        /// Control txtCorreo.
+        /// Control txtDesdeVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCorreo;
+        protected global::System.Web.UI.WebControls.TextBox txtDesdeVentas;
 
         /// <summary>
-        /// Control btnRegistrarCliente.
+        /// Control txtHastaVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRegistrarCliente;
+        protected global::System.Web.UI.WebControls.TextBox txtHastaVentas;
 
         /// <summary>
-        /// Control txtBuscar.
+        /// Control btnFiltrarVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBuscar;
+        protected global::System.Web.UI.WebControls.Button btnFiltrarVentas;
 
         /// <summary>
-        /// Control btnBuscar.
+        /// Control btnLimpiarVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnBuscar;
+        protected global::System.Web.UI.WebControls.Button btnLimpiarVentas;
 
         /// <summary>
-        /// Control btnLimpiar.
+        /// Control gvHistorialVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLimpiar;
+        protected global::System.Web.UI.WebControls.GridView gvHistorialVentas;
 
         /// <summary>
-        /// Control gvClientes.
+        /// Control gvEstadisticas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvClientes;
-
-        /// <summary>
-        /// Control lblMensajeVacio.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMensajeVacio;
+        protected global::System.Web.UI.WebControls.GridView gvEstadisticas;
     }
 }

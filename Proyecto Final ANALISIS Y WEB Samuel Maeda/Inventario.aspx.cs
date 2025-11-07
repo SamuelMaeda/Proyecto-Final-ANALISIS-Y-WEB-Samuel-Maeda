@@ -155,6 +155,12 @@ namespace LuzDelSaber
             CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());
         }
 
+        protected void btnAjustesInventario_Click(object sender, EventArgs e)
+        {
+            // Redirige al nuevo WebForm de Ajustes de Inventario
+            Response.Redirect("~/AjusteInventario.aspx");
+        }
+
         protected void ddlOrden_SelectedIndexChanged(object sender, EventArgs e)
         {
             CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());

@@ -9,6 +9,7 @@ namespace LuzDelSaber
         {
             if (!IsPostBack)
             {
+                // Validar sesión activa
                 if (Session["Usuario"] == null || Session["Rol"] == null)
                 {
                     Response.Redirect("Proyecto Final Analisis y Web.aspx");
@@ -33,6 +34,8 @@ namespace LuzDelSaber
                 panelReportes.Visible = true;
                 panelInventario.Visible = true;
                 panelClientes.Visible = true;
+                panelEmpleados.Visible = true;
+                panelProveedores.Visible = true;
             }
             else if (rol.Equals("Cajero", StringComparison.OrdinalIgnoreCase))
             {
@@ -43,6 +46,8 @@ namespace LuzDelSaber
                 panelReportes.Visible = true;
                 panelInventario.Visible = true;
                 panelClientes.Visible = true;
+                panelEmpleados.Visible = false;
+                panelProveedores.Visible = false;
             }
             else
             {
@@ -53,6 +58,8 @@ namespace LuzDelSaber
                 panelReportes.Visible = false;
                 panelInventario.Visible = false;
                 panelClientes.Visible = false;
+                panelEmpleados.Visible = false;
+                panelProveedores.Visible = false;
             }
         }
     }

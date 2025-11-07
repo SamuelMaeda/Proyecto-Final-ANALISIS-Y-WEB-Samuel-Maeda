@@ -7,8 +7,17 @@
         <h2 class="text-center mb-4">📦 Inventario de Libros</h2>
 
         <div class="d-flex justify-content-between mb-3">
-            <asp:Button ID="btnVerBaja" runat="server" Text="📕 Ver libros dados de baja"
-                CssClass="btn btn-outline-danger" OnClick="btnVerBaja_Click" />
+
+            <div class="d-flex gap-2">
+                <asp:Button ID="btnVerBaja" runat="server" Text="📕 Ver libros dados de baja"
+                    CssClass="btn btn-outline-danger" OnClick="btnVerBaja_Click" />
+
+                <!-- 🔹 Nuevo botón para ajustes de inventario -->
+                <asp:Button ID="btnAjustesInventario" runat="server"
+                    Text="⚙️ Ajustes de inventario"
+                    CssClass="btn btn-outline-primary"
+                    OnClick="btnAjustesInventario_Click" />
+            </div>
 
             <div class="text-end">
                 <label class="me-2 fw-bold">Ordenar por:</label>
@@ -76,7 +85,6 @@
                             OnClientClick="return confirm('¿Deseas dar de baja este libro?');" />
                     </ItemTemplate>
                 </asp:TemplateField>
-
             </Columns>
         </asp:GridView>
 
