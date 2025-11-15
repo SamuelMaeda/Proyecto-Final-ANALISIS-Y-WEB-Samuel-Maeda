@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
-using QuestPDF.Infrastructure; // QuestPDF
 
 namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
 {
@@ -12,10 +9,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            // Licencia gratuita de QuestPDF
-            QuestPDF.Settings.License = LicenseType.Community;
-
-            // Configurable
+            // Inicialización general de la aplicación
+            
         }
 
         protected void Session_Start(object sender, EventArgs e)

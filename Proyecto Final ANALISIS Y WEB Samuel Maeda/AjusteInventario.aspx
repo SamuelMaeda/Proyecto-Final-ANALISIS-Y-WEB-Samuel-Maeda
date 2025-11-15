@@ -1,12 +1,12 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AjusteInventario.aspx.cs"
-    Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.AjusteInventario" MasterPageFile="~/Site.Master" %>
+    Inherits="Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda.AjusteInventario" 
+    MasterPageFile="~/Site.Master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
 
     <div class="card shadow p-4">
         <h2 class="text-center mb-4">⚙️ Ajustes de Inventario</h2>
 
-        <!-- Formulario de ajuste -->
         <div class="row g-3 mb-4 justify-content-center">
             <div class="col-md-4">
                 <label class="form-label fw-bold">Libro</label>
@@ -38,13 +38,13 @@
             </div>
 
             <div class="col-md-2 d-flex align-items-end">
-                <asp:Button ID="btnAplicar" runat="server" Text="Aplicar ajuste" CssClass="btn btn-primary w-100" OnClick="btnAplicar_Click" />
+                <asp:Button ID="btnAplicar" runat="server" Text="Aplicar ajuste" CssClass="btn btn-primary w-100"
+                    OnClick="btnAplicar_Click" />
             </div>
         </div>
 
         <hr />
 
-        <!-- Filtro por fechas -->
         <div class="row gx-2 align-items-end mb-3 justify-content-center">
             <div class="col-auto">
                 <label class="form-label">Desde</label>
@@ -55,30 +55,39 @@
                 <asp:TextBox ID="txtHasta" runat="server" CssClass="form-control"></asp:TextBox>
             </div>
             <div class="col-auto">
-                <asp:Button ID="btnFiltrar" runat="server" Text="Filtrar" CssClass="btn btn-primary" OnClick="btnFiltrar_Click" />
+                <asp:Button ID="btnFiltrar" runat="server" Text="Filtrar" CssClass="btn btn-primary"
+                    OnClick="btnFiltrar_Click" />
             </div>
             <div class="col-auto">
-                <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar" CssClass="btn btn-outline-secondary" OnClick="btnLimpiar_Click" />
+                <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar" CssClass="btn btn-outline-secondary"
+                    OnClick="btnLimpiar_Click" />
             </div>
         </div>
 
-        <!-- Historial de ajustes -->
         <asp:GridView ID="gvAjustes" runat="server"
             CssClass="table table-striped table-hover text-center"
             AutoGenerateColumns="False" AllowPaging="True" PageSize="10"
             OnPageIndexChanging="gvAjustes_PageIndexChanging">
+
             <Columns>
-                <asp:BoundField DataField="FechaAjuste" HeaderText="Fecha y Hora" />
+                <asp:BoundField DataField="FechaAjuste" HeaderText="Fecha y Hora"
+                    DataFormatString="{0:dd/MM/yyyy HH:mm}" />
+
                 <asp:BoundField DataField="Libro" HeaderText="Libro" />
+
                 <asp:BoundField DataField="TipoAjuste" HeaderText="Tipo de ajuste" />
+
                 <asp:BoundField DataField="CantidadAjustada" HeaderText="Cantidad" />
-                <asp:BoundField DataField="CantidadNueva" HeaderText="Antes" />
-                <asp:BoundField DataField="CantidadAnterior" HeaderText="Después" />
-                
+
+                <asp:BoundField DataField="CantidadAnterior" HeaderText="Antes" />
+                <asp:BoundField DataField="CantidadNueva" HeaderText="Después" />
+
                 <asp:BoundField DataField="Usuario" HeaderText="Usuario" />
                 <asp:BoundField DataField="Motivo" HeaderText="Motivo" />
             </Columns>
+
         </asp:GridView>
+
     </div>
 
     <script type="text/javascript">
@@ -87,4 +96,5 @@
                 .forEach(id => { var el = document.getElementById(id); if (el) el.type = 'date'; });
         });
     </script>
+
 </asp:Content>

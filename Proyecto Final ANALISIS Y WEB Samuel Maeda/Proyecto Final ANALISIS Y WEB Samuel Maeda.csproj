@@ -59,9 +59,6 @@
     <Reference Include="PdfSharp.Charting, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
       <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
-    <Reference Include="QuestPDF, Version=2025.7.4.0, Culture=neutral, PublicKeyToken=0f3c2b2315ff52c8, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuestPDF.2025.7.4\lib\netstandard2.0\QuestPDF.dll</HintPath>
-    </Reference>
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.6\lib\net462\SkiaSharp.dll</HintPath>
     </Reference>
@@ -237,6 +234,7 @@
     <None Include="packages.config" />
     <Content Include="Site.Master" />
     <Content Include="SearchHandler.ashx" />
+    <None Include="Properties\PublishProfiles\site42209-WebDeploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -277,11 +275,9 @@
       <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
-    <Error Condition="!Exists('..\packages\QuestPDF.2025.7.4\build\net4\QuestPDF.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\QuestPDF.2025.7.4\build\net4\QuestPDF.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.6\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.macOS.2.88.6\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
   </Target>
-  <Import Project="..\packages\QuestPDF.2025.7.4\build\net4\QuestPDF.targets" Condition="Exists('..\packages\QuestPDF.2025.7.4\build\net4\QuestPDF.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.6\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.6\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

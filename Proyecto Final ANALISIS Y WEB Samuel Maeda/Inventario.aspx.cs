@@ -27,10 +27,10 @@ namespace LuzDelSaber
                         SELECT 
                             L.LibroId,
                             L.Titulo,
-                            ISNULL(ISNULL(E.Nombre, L.Editorial), 'Sin Editorial') AS Editorial,
+                            ISNULL(E.Nombre, 'Sin Editorial') AS Editorial,
                             ISNULL(C.Nombre, 'Sin Categoría') AS Categoria,
 
-                            -- Precio de Compra (fijo por categoría)
+                            -- Precio de Compra por categoría
                             CASE 
                                 WHEN C.Nombre = 'Fantasía' OR C.Nombre = 'Fantasia' THEN 50
                                 WHEN C.Nombre = 'Novelas' THEN 100
@@ -38,7 +38,7 @@ namespace LuzDelSaber
                                 ELSE ISNULL(L.PrecioOverride, 0)
                             END AS PrecioCompra,
 
-                            -- Precio de Venta (fijo por categoría)
+                            -- Precio de Venta por categoría
                             CASE 
                                 WHEN C.Nombre = 'Fantasía' OR C.Nombre = 'Fantasia' THEN 80
                                 WHEN C.Nombre = 'Novelas' THEN 130
@@ -52,9 +52,10 @@ namespace LuzDelSaber
                         LEFT JOIN Categorias C ON L.CategoriaId = C.CategoriaId
                         LEFT JOIN Editoriales E ON L.EditorialId = E.EditorialId
                         WHERE L.Activo = 1
-                          AND (@Filtro = '' OR L.Titulo LIKE '%' + @Filtro + '%' 
-                              OR ISNULL(ISNULL(E.Nombre, L.Editorial), '') LIKE '%' + @Filtro + '%' 
-                              OR ISNULL(C.Nombre,'') LIKE '%' + @Filtro + '%')
+                          AND (@Filtro = '' OR
+                               L.Titulo LIKE '%' + @Filtro + '%' OR
+                               E.Nombre LIKE '%' + @Filtro + '%' OR
+                               C.Nombre LIKE '%' + @Filtro + '%')
                         ORDER BY {campoOrden} {tipoOrden}";
 
                     SqlDataAdapter da = new SqlDataAdapter(query, con);
@@ -74,7 +75,7 @@ namespace LuzDelSaber
             }
         }
 
-        // 🔹 Colores visuales del stock
+        // 🔹 Colores del stock
         public string ObtenerColorStock(object stockObj)
         {
             int stock = 0;
@@ -88,7 +89,7 @@ namespace LuzDelSaber
                 return "color: green; font-weight:bold;";
         }
 
-        // 🔹 Mostrar/ocultar botón según rol
+        // 🔹 Mostrar botón "Dar de baja" solo si stock = 0 y Rol = Gerente
         protected void gvLibros_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
@@ -104,22 +105,25 @@ namespace LuzDelSaber
             }
         }
 
-        // 🔹 Dar de baja un libro
+        // 🔹 Dar de baja un libro (Activo = 0)
         protected void gvLibros_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName == "DarDeBaja")
             {
                 int libroId = Convert.ToInt32(e.CommandArgument);
+
                 using (SqlConnection con = new SqlConnection(conexion))
                 {
-                    string query = "UPDATE Libros SET Activo = 0 WHERE LibroId = @LibroId";
-                    SqlCommand cmd = new SqlCommand(query, con);
+                    SqlCommand cmd = new SqlCommand(
+                        "UPDATE Libros SET Activo = 0 WHERE LibroId = @LibroId", con);
                     cmd.Parameters.AddWithValue("@LibroId", libroId);
                     con.Open();
                     cmd.ExecuteNonQuery();
                 }
 
-                CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());
+                CargarInventario(ddlOrdenarPor.SelectedValue,
+                                 ddlOrden.SelectedValue,
+                                 txtBuscar.Text.Trim());
             }
         }
 
@@ -130,35 +134,38 @@ namespace LuzDelSaber
             CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());
         }
 
-        // 🔹 Botones de acción
+        // 🔹 Buscar
         protected void btnBuscar_Click(object sender, EventArgs e)
         {
             CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());
         }
 
+        // 🔹 Reiniciar filtros
         protected void btnReiniciar_Click(object sender, EventArgs e)
         {
             txtBuscar.Text = "";
             ddlOrdenarPor.SelectedIndex = 0;
             ddlOrden.SelectedIndex = 0;
+
             CargarInventario("L.LibroId", "ASC");
         }
 
+        // 🔹 Ver libros dados de baja
         protected void btnVerBaja_Click(object sender, EventArgs e)
         {
             Response.Redirect("LibrosDadosDeBaja.aspx");
         }
 
-        // 🔹 Ordenamiento dinámico (nuevo)
+        // 🔹 Botón de ajustes de inventario
+        protected void btnAjustesInventario_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/AjusteInventario.aspx");
+        }
+
+        // 🔹 Orden dinámico
         protected void ddlOrdenarPor_SelectedIndexChanged(object sender, EventArgs e)
         {
             CargarInventario(ddlOrdenarPor.SelectedValue, ddlOrden.SelectedValue, txtBuscar.Text.Trim());
-        }
-
-        protected void btnAjustesInventario_Click(object sender, EventArgs e)
-        {
-            // Redirige al nuevo WebForm de Ajustes de Inventario
-            Response.Redirect("~/AjusteInventario.aspx");
         }
 
         protected void ddlOrden_SelectedIndexChanged(object sender, EventArgs e)

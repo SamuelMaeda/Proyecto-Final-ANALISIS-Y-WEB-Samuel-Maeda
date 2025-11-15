@@ -16,7 +16,6 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             {
                 CargarLibros();
 
-                // Dejar fechas vacías y mostrar formato visual
                 txtDesde.Attributes["placeholder"] = "dd/mm/yy";
                 txtHasta.Attributes["placeholder"] = "dd/mm/yy";
 
@@ -28,21 +27,27 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT LibroId, Titulo FROM Libros ORDER BY Titulo", con);
+                SqlDataAdapter da = new SqlDataAdapter(
+                    "SELECT LibroId, Titulo FROM Libros WHERE Activo = 1 ORDER BY Titulo", con);
+
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+
                 ddlLibro.DataSource = dt;
                 ddlLibro.DataTextField = "Titulo";
                 ddlLibro.DataValueField = "LibroId";
                 ddlLibro.DataBind();
+
                 ddlLibro.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione un libro --", ""));
             }
         }
 
         protected void btnAplicar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(ddlLibro.SelectedValue) || string.IsNullOrEmpty(txtCantidad.Text)
-                || string.IsNullOrEmpty(ddlTipo.SelectedValue) || string.IsNullOrEmpty(txtMotivo.Text))
+            if (string.IsNullOrEmpty(ddlLibro.SelectedValue) ||
+                string.IsNullOrEmpty(txtCantidad.Text) ||
+                string.IsNullOrEmpty(ddlTipo.SelectedValue) ||
+                string.IsNullOrEmpty(txtMotivo.Text))
             {
                 ScriptManager.RegisterStartupScript(this, GetType(), "alerta",
                     "alert('Debe seleccionar un libro, tipo de ajuste, cantidad y motivo.');", true);
@@ -50,7 +55,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
             }
 
             int libroId = int.Parse(ddlLibro.SelectedValue);
-            int cantidadAjuste = int.Parse(txtCantidad.Text);
+            int cantidadIngresada = int.Parse(txtCantidad.Text);
             string tipo = ddlTipo.SelectedValue;
             string motivo = txtMotivo.Text.Trim();
             string usuario = Session["Usuario"]?.ToString() ?? "Desconocido";
@@ -63,54 +68,72 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 try
                 {
                     // Obtener cantidad actual
-                    SqlCommand cmd = new SqlCommand("SELECT CantidadActual FROM Inventario WHERE LibroId = @LibroId", con, trans);
+                    SqlCommand cmd = new SqlCommand(
+                        "SELECT StockUnidades FROM Libros WHERE LibroId = @LibroId",
+                        con, trans);
+
                     cmd.Parameters.AddWithValue("@LibroId", libroId);
+
                     object result = cmd.ExecuteScalar();
+                    int cantidadAntes = (result == null || result == DBNull.Value)
+                        ? 0
+                        : Convert.ToInt32(result);
 
-                    int cantidadAnterior = (result == null || result == DBNull.Value) ? 0 : Convert.ToInt32(result);
-                    int nuevaCantidad = cantidadAnterior + cantidadAjuste;
-                    if (nuevaCantidad < 0) nuevaCantidad = 0;
+                    // Calcular cantidad nueva
+                    int cantidadDespues = cantidadAntes;
 
-                    // Insertar o actualizar inventario
-                    if (result == null)
+                    switch (tipo)
                     {
-                        cmd = new SqlCommand("INSERT INTO Inventario (LibroId, CantidadActual, UltimaActualizacion) VALUES (@LibroId, @CantidadNueva, GETDATE())", con, trans);
-                        cmd.Parameters.AddWithValue("@LibroId", libroId);
-                        cmd.Parameters.AddWithValue("@CantidadNueva", nuevaCantidad);
-                        cmd.ExecuteNonQuery();
+                        case "Robo":
+                        case "Extravio":
+                        case "Deterioro":
+                            cantidadDespues = Math.Max(0, cantidadAntes - cantidadIngresada);
+                            break;
+
+                        case "Ajuste positivo":
+                            cantidadDespues = cantidadAntes + cantidadIngresada;
+                            break;
+
+                        case "Error de conteo":
+                            cantidadDespues = cantidadIngresada; // valor final real
+                            break;
                     }
-                    else
-                    {
-                        cmd = new SqlCommand("UPDATE Inventario SET CantidadActual = @CantidadNueva, UltimaActualizacion = GETDATE() WHERE LibroId = @LibroId", con, trans);
-                        cmd.Parameters.AddWithValue("@CantidadNueva", nuevaCantidad);
-                        cmd.Parameters.AddWithValue("@LibroId", libroId);
-                        cmd.ExecuteNonQuery();
-                    }
+
+                    // Actualizar inventario
+                    cmd = new SqlCommand(
+                        "UPDATE Libros SET StockUnidades = @NuevaCantidad WHERE LibroId = @LibroId",
+                        con, trans);
+
+                    cmd.Parameters.AddWithValue("@NuevaCantidad", cantidadDespues);
+                    cmd.Parameters.AddWithValue("@LibroId", libroId);
+                    cmd.ExecuteNonQuery();
 
                     // Registrar ajuste
                     cmd = new SqlCommand(@"
-                        INSERT INTO AjustesInventario 
-                        (LibroId, CantidadAjustada, TipoAjuste, Motivo, Usuario, CantidadAnterior, CantidadNueva)
-                        VALUES (@LibroId, @CantidadAjustada, @TipoAjuste, @Motivo, @Usuario, @CantidadAnterior, @CantidadNueva)", con, trans);
+                        INSERT INTO AjustesInventario
+                        (LibroId, CantidadAjustada, TipoAjuste, Motivo, Usuario, CantidadAnterior, CantidadNueva, FechaAjuste)
+                        VALUES
+                        (@LibroId, @CantidadAjustada, @TipoAjuste, @Motivo, @Usuario, @CantidadAnterior, @CantidadNueva, GETDATE())",
+                        con, trans);
 
                     cmd.Parameters.AddWithValue("@LibroId", libroId);
-                    cmd.Parameters.AddWithValue("@CantidadAjustada", cantidadAjuste);
+                    cmd.Parameters.AddWithValue("@CantidadAjustada", cantidadIngresada);
                     cmd.Parameters.AddWithValue("@TipoAjuste", tipo);
                     cmd.Parameters.AddWithValue("@Motivo", motivo);
                     cmd.Parameters.AddWithValue("@Usuario", usuario);
-                    cmd.Parameters.AddWithValue("@CantidadAnterior", cantidadAnterior);
-                    cmd.Parameters.AddWithValue("@CantidadNueva", nuevaCantidad);
+                    cmd.Parameters.AddWithValue("@CantidadAnterior", cantidadAntes);
+                    cmd.Parameters.AddWithValue("@CantidadNueva", cantidadDespues);
                     cmd.ExecuteNonQuery();
 
                     trans.Commit();
 
                     ScriptManager.RegisterStartupScript(this, GetType(), "ok",
-                        "alert('✅ Ajuste aplicado correctamente.');", true);
+                        "alert('Ajuste aplicado correctamente.');", true);
 
                     txtCantidad.Text = "";
                     txtMotivo.Text = "";
-                    ddlTipo.SelectedIndex = 0;
                     ddlLibro.SelectedIndex = 0;
+                    ddlTipo.SelectedIndex = 0;
 
                     CargarHistorial();
                 }
@@ -118,29 +141,26 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 {
                     trans.Rollback();
                     ScriptManager.RegisterStartupScript(this, GetType(), "error",
-                        $"alert('❌ Error: {ex.Message.Replace("'", "\\'")}');", true);
+                        $"alert('Error: {ex.Message.Replace("'", "\\'")}');", true);
                 }
             }
         }
 
         private void CargarHistorial()
         {
-            // Fechas seguras para SQL Server
             DateTime desde = ParseOrDefaultDate(txtDesde.Text, new DateTime(1753, 1, 1));
             DateTime hasta = ParseOrDefaultDate(txtHasta.Text, new DateTime(9999, 12, 31));
 
             using (SqlConnection con = new SqlConnection(conexion))
             {
-                // ✅ Nombres de columnas igual que en el .aspx (CantidadNueva / CantidadAnterior)
                 string query = @"
                     SELECT 
                         CONVERT(VARCHAR(16), A.FechaAjuste, 103) AS FechaAjuste,
                         L.Titulo AS Libro,
                         A.TipoAjuste,
                         A.CantidadAjustada,
-                        -- Intercambiamos visualmente los valores para que se vean correctos
-                        A.CantidadAnterior AS CantidadNueva,   -- Antes
-                        A.CantidadNueva AS CantidadAnterior,   -- Después
+                        A.CantidadAnterior,
+                        A.CantidadNueva,
                         A.Usuario,
                         A.Motivo
                     FROM AjustesInventario A
@@ -151,6 +171,7 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@desde", desde);
                 cmd.Parameters.AddWithValue("@hasta", hasta);
+
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -184,10 +205,8 @@ namespace Proyecto_Final_ANALISIS_Y_WEB_Samuel_Maeda
         {
             if (DateTime.TryParse(text, out DateTime result))
             {
-                if (result < new DateTime(1753, 1, 1))
-                    return new DateTime(1753, 1, 1);
-                if (result > new DateTime(9999, 12, 31))
-                    return new DateTime(9999, 12, 31);
+                if (result < new DateTime(1753, 1, 1)) return new DateTime(1753, 1, 1);
+                if (result > new DateTime(9999, 12, 31)) return new DateTime(9999, 12, 31);
                 return result;
             }
             return defaultValue;
